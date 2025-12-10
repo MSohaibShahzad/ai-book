@@ -1,6 +1,6 @@
 ---
 title: "Preface"
-slug: /home
+slug: /preface
 sidebar_label: "Preface"
 toc: true
 description: "Introduction to the Physical-AI & Humanoid Robotics textbook, covering scope, pedagogy, and learning approach"
