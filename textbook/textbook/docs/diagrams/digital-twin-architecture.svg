@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" role="img" aria-label="Digital Twin Architecture showing bidirectional data flow between physical robot, digital twin, and simulation environments">
+  <title>Digital Twin Architecture</title>
+  <desc>Conceptual diagram showing the relationship between a physical humanoid robot, its digital twin (virtual representation), and simulation environments (Gazebo for physics, Unity for rendering). Bidirectional arrows indicate real-time data synchronization.</desc>
+
+  <!-- Styles -->
+  <defs>
+    <style>
+      .box { fill: #e0e0e0; stroke: #333; stroke-width: 2; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .bidirectional { stroke: #333; stroke-width: 2; fill: none; marker-start: url(#arrowhead-start); marker-end: url(#arrowhead); }
+      .dashed { stroke-dasharray: 5,5; }
+      .text-label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+      .text-small { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .text-title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #333; }
+      .sim-box { fill: #d0d0d0; stroke: #333; stroke-width: 2; }
+      .data-flow { font-family: Arial, sans-serif; font-size: 11px; fill: #555; font-style: italic; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+    <marker id="arrowhead-start" markerWidth="10" markerHeight="10" refX="1" refY="3" orient="auto">
+      <polygon points="10 0, 0 3, 10 6" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" class="text-title">Digital Twin Architecture</text>
+
+  <!-- Physical Robot (Left) -->
+  <rect x="50" y="150" width="200" height="180" rx="5" class="box"/>
+  <text x="150" y="180" text-anchor="middle" class="text-label" font-weight="bold">Physical Robot</text>
+  <text x="60" y="210" class="text-small">Hardware Components:</text>
+  <text x="70" y="230" class="text-small">• 40 joint actuators</text>
+  <text x="70" y="250" class="text-small">• Cameras (stereo, depth)</text>
+  <text x="70" y="270" class="text-small">• LiDAR sensors</text>
+  <text x="70" y="290" class="text-small">• IMU (balance)</text>
+  <text x="70" y="310" class="text-small">• Force/torque sensors</text>
+
+  <!-- Digital Twin (Center) -->
+  <rect x="350" y="100" width="200" height="280" rx="5" class="box"/>
+  <text x="450" y="130" text-anchor="middle" class="text-label" font-weight="bold">Digital Twin</text>
+  <text x="360" y="155" class="text-small">Virtual Representation:</text>
+  <text x="370" y="175" class="text-small">• URDF/SDF model</text>
+  <text x="370" y="195" class="text-small">• Joint states (real-time)</text>
+  <text x="370" y="215" class="text-small">• Sensor data streams</text>
+  <text x="370" y="235" class="text-small">• Physics properties</text>
+  <line x1="360" y1="255" x2="540" y2="255" stroke="#333" stroke-width="1"/>
+  <text x="360" y="275" class="text-small">Synchronization:</text>
+  <text x="370" y="295" class="text-small">• State estimation</text>
+  <text x="370" y="315" class="text-small">• Predictive modeling</text>
+  <text x="370" y="335" class="text-small">• Anomaly detection</text>
+  <text x="370" y="355" class="text-small">• Control validation</text>
+
+  <!-- Simulation Environments (Right) -->
+  <rect x="650" y="80" width="200" height="130" rx="5" class="sim-box"/>
+  <text x="750" y="105" text-anchor="middle" class="text-label" font-weight="bold">Gazebo</text>
+  <text x="660" y="125" class="text-small">Physics Simulation:</text>
+  <text x="670" y="145" class="text-small">• Rigid body dynamics</text>
+  <text x="670" y="165" class="text-small">• Contact forces</text>
+  <text x="670" y="185" class="text-small">• Sensor simulation</text>
+  <text x="670" y="200" class="text-small">• ROS 2 integration</text>
+
+  <rect x="650" y="240" width="200" height="130" rx="5" class="sim-box"/>
+  <text x="750" y="265" text-anchor="middle" class="text-label" font-weight="bold">Unity</text>
+  <text x="660" y="285" class="text-small">High-Fidelity Rendering:</text>
+  <text x="670" y="305" class="text-small">• Photorealistic graphics</text>
+  <text x="670" y="325" class="text-small">• HRI visualization</text>
+  <text x="670" y="345" class="text-small">• VR/AR interfaces</text>
+  <text x="670" y="360" class="text-small">• Synthetic data gen.</text>
+
+  <!-- Bidirectional Arrow: Physical ↔ Digital Twin -->
+  <path d="M 250 240 L 350 240" class="bidirectional"/>
+  <text x="300" y="230" text-anchor="middle" class="data-flow">Sensor data →</text>
+  <text x="300" y="255" text-anchor="middle" class="data-flow">← Commands</text>
+
+  <!-- Bidirectional Arrow: Digital Twin ↔ Gazebo -->
+  <path d="M 550 145 L 650 145" class="bidirectional"/>
+  <text x="600" y="135" text-anchor="middle" class="data-flow">Model/state →</text>
+  <text x="600" y="160" text-anchor="middle" class="data-flow">← Sim results</text>
+
+  <!-- Bidirectional Arrow: Digital Twin ↔ Unity -->
+  <path d="M 550 305 L 650 305" class="bidirectional"/>
+  <text x="600" y="295" text-anchor="middle" class="data-flow">Visualization →</text>
+  <text x="600" y="320" text-anchor="middle" class="data-flow">← User input</text>
+
+  <!-- Dashed arrow: Gazebo → Unity (optional connection) -->
+  <path d="M 750 210 L 750 240" class="arrow dashed"/>
+  <text x="765" y="230" class="data-flow">Data export</text>
+
+  <!-- Legend -->
+  <rect x="50" y="420" width="800" height="60" rx="5" fill="#f5f5f5" stroke="#333" stroke-width="1"/>
+  <text x="60" y="440" class="text-label" font-weight="bold">Use Cases:</text>
+  <text x="70" y="460" class="text-small">• Testing: Validate control algorithms before deploying to hardware</text>
+  <text x="70" y="475" class="text-small">• Training: Generate synthetic data for perception models (LiDAR, vision)</text>
+  <text x="450" y="460" class="text-small">• Monitoring: Real-time visualization of robot state</text>
+  <text x="450" y="475" class="text-small">• Prediction: Simulate future scenarios for planning</text>
+
+  <!-- Bottom note -->
+  <text x="450" y="495" text-anchor="middle" class="text-small" font-style="italic">
+    Bidirectional sync enables sim-to-real transfer and real-to-sim debugging
+  </text>
+</svg>
