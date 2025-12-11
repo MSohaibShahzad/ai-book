@@ -44,7 +44,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/msohaibshahzad/Physical-AI-Humanoid-Robotics/tree/main/',
+            'https://github.com/MSohaibShahzad/ai-book',
         },
         blog: false,
         theme: {
@@ -63,7 +63,7 @@ const config = {
         title: 'Physical-AI Textbook',
         items: [
           {
-            href: 'https://github.com/MSohaibShahzad/ai-book/tree/main/Physical-AI-Humanoid-Robotics',
+            href: 'https://github.com/MSohaibShahzad/ai-book',
             label: 'GitHub',
             position: 'right',
           },
@@ -103,7 +103,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/MSohaibShahzad/ai-book/tree/main/Physical-AI-Humanoid-Robotics',
+                href: 'https://github.com/MSohaibShahzad/ai-book',
               },
             ],
           },
