@@ -12,7 +12,7 @@ import { inferAdditionalFields } from "better-auth/client/plugins";
 
 // Auth API URL - points to Better-Auth server
 // In production, update this to your auth server domain
-const AUTH_API_URL = process.env.REACT_APP_AUTH_API_URL!;
+const API_URL = 'https://ai-book-ki61.vercel.app/v1';
 
 /**
  * Better-Auth client instance
