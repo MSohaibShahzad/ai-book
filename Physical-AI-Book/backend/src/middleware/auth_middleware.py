@@ -9,10 +9,11 @@ import httpx
 from typing import Optional, Dict, Any
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
+from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-AUTH_SERVER_URL = "http://localhost:3001"
+AUTH_SERVER_URL = settings.better_auth_url
 
 
 class AuthUser:
