@@ -12,6 +12,10 @@ const config = {
   tagline: 'A University Textbook on Modern Humanoid Robotics',
   favicon: 'static/favicon.ico',
 
+  customFields: {
+      apiUrl: process.env.API_URL || 'https://ai-book-ki61.vercel.app/v1',
+      authApiUrl: process.env.AUTH_API_URL || 'https://ai-book-ki61.vercel.app',
+    },
   // Set the production url of your site here
   url: 'https://ai-book-green.vercel.app/',
   // Set the /<baseUrl>/ pathname under which your site is served
