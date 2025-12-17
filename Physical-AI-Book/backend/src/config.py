@@ -52,7 +52,7 @@ class Settings(BaseSettings):
         try:
             return json.loads(self.cors_origins)
         except json.JSONDecodeError:
-            return ["http://localhost:3000"]
+            return ["https://ai-book-green.vercel.app", "https://ai-book-ki61.vercel.app"]
 
 
 # Global settings instance
