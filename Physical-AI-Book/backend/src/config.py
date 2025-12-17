@@ -30,9 +30,9 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 10
 
     # Better-Auth Integration
-    better_auth_secret: str = ""
-    better_auth_url: str = "http://localhost:3001"
-    node_env: str = "development"
+    better_auth_secret: str 
+    better_auth_url: str 
+    node_env: str = "production"
 
     # Retrieval Settings
     max_retrieval_chunks: int = 5
