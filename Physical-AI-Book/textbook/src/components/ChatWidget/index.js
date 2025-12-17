@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './styles.module.css';
 
-const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:8000/v1'
-  : 'https://ai-book-ki61.vercel.app/v1';
+const API_URL = 'https://ai-book-ki61.vercel.app/v1';
 
 // Generate a valid UUID v4
 function generateUUID() {
