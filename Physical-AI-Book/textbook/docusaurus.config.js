@@ -10,7 +10,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'Physical-AI & Humanoid Robotics',
   tagline: 'A University Textbook on Modern Humanoid Robotics',
-  favicon: 'static/favicon.ico',
+  favicon: 'img/favicon.ico',
 
   customFields: {
       apiUrl: process.env.API_URL || 'https://ai-book-ki61.vercel.app/v1',
