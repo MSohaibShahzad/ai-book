@@ -11,12 +11,19 @@ import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
 // Auth API URL - points to Better-Auth server
-// In production, update this to your auth server domain
+// The auth server will be deployed separately on Vercel
 const getAuthApiUrl = () => {
-  if (typeof window === 'undefined') return 'https://ai-book-ki61.vercel.app';
-  return window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : 'https://ai-book-ki61.vercel.app';
+  if (typeof window === 'undefined') return 'http://localhost:3001';
+
+  // In development, use local auth server
+  if (window.location.hostname === 'localhost') {
+    return 'http://localhost:3001';
+  }
+
+  // In production, use the deployed auth server
+  // TODO: Replace with your actual auth server Vercel URL after deployment
+  // For now, we'll use an environment variable or default to the main domain
+  return process.env.NEXT_PUBLIC_AUTH_URL || 'https://ai-book-auth.vercel.app';
 };
 
 const AUTH_API_URL = getAuthApiUrl();
