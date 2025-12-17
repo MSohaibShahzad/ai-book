@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Application Settings
     environment: str = "development"
     log_level: str = "INFO"
-    cors_origins: str = '["http://localhost:3000"]'
+    cors_origins: str = '["http://localhost:3000", "https://ai-book-green.vercel.app", "https://ai-book-ki61.vercel.app"]'
     rate_limit_per_minute: int = 10
 
     # Better-Auth Integration
