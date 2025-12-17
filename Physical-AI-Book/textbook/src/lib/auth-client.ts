@@ -13,17 +13,20 @@ import { inferAdditionalFields } from "better-auth/client/plugins";
 // Auth API URL - points to Better-Auth server
 // The auth server will be deployed separately on Vercel
 const getAuthApiUrl = () => {
+  // Docusaurus uses REACT_APP_ prefix and requires accessing via window
+  // @ts-ignore - Docusaurus injects env vars into window object
+  const envAuthUrl = typeof window !== 'undefined' ? window?.REACT_APP_AUTH_API_URL : undefined;
+
   if (typeof window === 'undefined') return 'http://localhost:3001';
 
   // In development, use local auth server
   if (window.location.hostname === 'localhost') {
-    return 'http://localhost:3001';
+    return envAuthUrl || 'http://localhost:3001';
   }
 
-  // In production, use the deployed auth server
-  // TODO: Replace with your actual auth server Vercel URL after deployment
-  // For now, we'll use an environment variable or default to the main domain
-  return process.env.NEXT_PUBLIC_AUTH_URL || 'https://ai-book-auth.vercel.app';
+  // In production, use the deployed auth server from environment variable
+  // Falls back to default if REACT_APP_AUTH_API_URL is not set
+  return envAuthUrl || 'https://ai-book-auth.vercel.app';
 };
 
 const AUTH_API_URL = getAuthApiUrl();
