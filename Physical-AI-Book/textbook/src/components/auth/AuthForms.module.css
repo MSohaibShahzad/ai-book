@@ -1,0 +1,188 @@
+/* Auth forms styling */
+
+.authForm {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--ifm-card-background-color, #fff);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.authForm h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-heading-color);
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin-bottom: 1.5rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.95rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--ifm-font-color-base);
+}
+
+.required {
+  color: var(--ifm-color-danger);
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="email"],
+.formGroup input[type="password"],
+.formGroup select {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 1rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 4px;
+  background-color: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  transition: border-color 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest);
+}
+
+.inputError {
+  border-color: var(--ifm-color-danger) !important;
+}
+
+.errorText {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--ifm-color-danger);
+}
+
+.helpText {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.passwordStrength {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 4px;
+  background-color: var(--ifm-color-emphasis-200);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strengthProgress {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 2px;
+}
+
+.errorBanner {
+  padding: 0.875rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--ifm-color-danger-lightest);
+  border: 1px solid var(--ifm-color-danger-light);
+  border-radius: 4px;
+  color: var(--ifm-color-danger-darkest);
+  font-size: 0.9375rem;
+}
+
+.successBanner {
+  padding: 0.875rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--ifm-color-success-lightest);
+  border: 1px solid var(--ifm-color-success-light);
+  border-radius: 4px;
+  color: var(--ifm-color-success-darkest);
+  font-size: 0.9375rem;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--ifm-color-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--ifm-color-primary-dark);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footerText {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.link {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.checkboxGroup input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkboxGroup label {
+  margin: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .authForm {
+  background: var(--ifm-card-background-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .formGroup input,
+[data-theme='dark'] .formGroup select {
+  background-color: var(--ifm-background-surface-color);
+  border-color: var(--ifm-color-emphasis-400);
+}
