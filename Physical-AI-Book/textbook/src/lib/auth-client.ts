@@ -12,7 +12,15 @@ import { inferAdditionalFields } from "better-auth/client/plugins";
 
 // Auth API URL - points to Better-Auth server
 // In production, update this to your auth server domain
-const API_URL = 'https://ai-book-ki61.vercel.app/v1';
+const getAuthApiUrl = () => {
+  if (typeof window === 'undefined') return 'https://ai-book-ki61.vercel.app';
+  return window.location.hostname === 'localhost'
+    ? 'http://localhost:3001'
+    : 'https://ai-book-ki61.vercel.app';
+};
+
+const AUTH_API_URL = getAuthApiUrl();
+
 
 /**
  * Better-Auth client instance
