@@ -1,1 +1,28 @@
 
+{
+  "version": 2,
+  "name": "ai-book-auth-server",
+  "builds": [
+    {
+      "src": "src/auth/serverless.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/auth/(.*)",
+      "dest": "/src/auth/serverless.ts"
+    },
+    {
+      "src": "/api/validate-session",
+      "dest": "/src/auth/serverless.ts"
+    },
+    {
+      "src": "/health",
+      "dest": "/src/auth/serverless.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
