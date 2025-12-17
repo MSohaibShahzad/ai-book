@@ -72,7 +72,7 @@ const server = http.createServer(async (req, res) => {
   const allowedOrigins = [
     "http://localhost:3000", // Docusaurus dev server
     "http://localhost:8000", // FastAPI backend
-    "https://physical-ai-textbook.dev", // Production frontend
+    "https://ai-book-green.vercel.app", // Production frontend
   ];
 
   const origin = req.headers.origin || "";
