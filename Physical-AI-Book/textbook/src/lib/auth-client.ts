@@ -8,19 +8,36 @@
  * - User profile updates
  */
 import { createAuthClient } from "better-auth/react";
+import { inferAdditionalFields } from "better-auth/client/plugins";
 
 // Auth API URL - points to Better-Auth server
 // In production, update this to your auth server domain
-const AUTH_API_URL = "http://localhost:3001";
+const AUTH_API_URL = process.env.REACT_APP_AUTH_API_URL!;
 
 /**
  * Better-Auth client instance
  * Configured to connect to the auth server at port 3001
+ * Uses inferAdditionalFields plugin to infer custom user fields from server
  */
 export const authClient = createAuthClient({
   baseURL: AUTH_API_URL,
   // Enable credentials for httpOnly cookies
   credentials: "include",
+  plugins: [
+    inferAdditionalFields({
+      user: {
+        softwareBackground: {
+          type: "string",
+        },
+        hardwareBackground: {
+          type: "string",
+        },
+        interestArea: {
+          type: "string",
+        },
+      },
+    }),
+  ],
 });
 
 /**
@@ -71,12 +88,12 @@ export async function signUpWithBackground(data: SignupData) {
     email: data.email,
     password: data.password,
     name: data.name,
-    // Pass custom fields through callbackURL or additional data
-    // Better-Auth will handle these via the additionalFields config
-    data: {
-      softwareBackground: data.softwareBackground || "Beginner",
-      hardwareBackground: data.hardwareBackground || "None",
-      interestArea: data.interestArea || "AI",
+    fetchOptions: {
+      body: {
+        softwareBackground: data.softwareBackground || "Beginner",
+        hardwareBackground: data.hardwareBackground || "None",
+        interestArea: data.interestArea || "AI",
+      },
     },
   });
 }
