@@ -47,14 +47,13 @@ class Settings(BaseSettings):
         case_sensitive = False
 
     def get_cors_origins(self) -> List[str]:
-        """Parse CORS origins from JSON string."""
+       """Parse CORS origins from JSON string.
+        Note: This method is kept for backward compatibility,
+        but main.py now uses allow_origin_regex for Vercel deployments.
+        """
         import json
         try:
-            origins = json.loads(self.cors_origins)
-            # Add wildcard support for all Vercel preview deployments
-            if not any(origin.endswith('*') for origin in origins):
-                origins.append("https://*.vercel.app")
-            return origins
+            return json.loads(self.cors_origins)
         except json.JSONDecodeError:
             return [
                 "http://localhost:3000",
