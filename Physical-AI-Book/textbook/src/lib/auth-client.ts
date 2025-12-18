@@ -10,25 +10,30 @@
 import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
-// Auth API URL - points to Better-Auth server
-// The auth server will be deployed separately on Vercel
+// Auth API URL - points to FastAPI backend
+// Reads from Docusaurus customFields (configured in docusaurus.config.js)
 const getAuthApiUrl = () => {
-  // Docusaurus uses REACT_APP_ prefix and requires accessing via window
-  // @ts-ignore - Docusaurus injects env vars into window object
-  const envAuthUrl = typeof window !== 'undefined' ? window?.REACT_APP_AUTH_API_URL : undefined;
+  if (typeof window === 'undefined') return 'http://localhost:8000';
 
-  if (typeof window === 'undefined') return 'http://localhost:3001';
+  // Get config from Docusaurus customFields
+  // @ts-ignore - Docusaurus injects config into window.docusaurus
+  const siteConfig = window?.docusaurus?.siteConfig;
+  // Use the same backend URL for both API and auth
+  const apiUrl = siteConfig?.customFields?.apiUrl as string | undefined;
 
-  // In development, use local auth server
+  // In development, use local FastAPI server
   if (window.location.hostname === 'localhost') {
-    return envAuthUrl || 'http://localhost:3001';
+    return 'http://localhost:8000';
   }
 
-  // In production, use the deployed auth server from environment variable
-  // Falls back to default if REACT_APP_AUTH_API_URL is not set
-  return envAuthUrl || 'https://ai-book-auth.vercel.app';
-};
+  // In production, use the FastAPI backend (same server handles both RAG and auth)
+  // Extract base URL without the /v1 path
+  if (apiUrl) {
+    return apiUrl.replace(/\/v1\/?$/, '');
+  }
 
+  return 'https://ai-book-ki61.vercel.app';
+};
 const AUTH_API_URL = getAuthApiUrl();
 
 
