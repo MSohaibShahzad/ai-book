@@ -50,9 +50,18 @@ class Settings(BaseSettings):
         """Parse CORS origins from JSON string."""
         import json
         try:
-            return json.loads(self.cors_origins)
+            origins = json.loads(self.cors_origins)
+            # Add wildcard support for all Vercel preview deployments
+            if not any(origin.endswith('*') for origin in origins):
+                origins.append("https://*.vercel.app")
+            return origins
         except json.JSONDecodeError:
-            return ["https://ai-book-green.vercel.app", "https://ai-book-ki61.vercel.app"]
+            return [
+                "http://localhost:3000",
+                "https://ai-book-green.vercel.app",
+                "https://ai-book-ki61.vercel.app",
+                "https://*.vercel.app"
+            ]
 
 
 # Global settings instance
