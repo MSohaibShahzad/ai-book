@@ -1,28 +1,20 @@
-
 {
   "version": 2,
-  "name": "ai-book-auth-server",
+  "name": "ai-book-fastapi-backend",
   "builds": [
     {
-      "src": "src/auth/serverless.ts",
-      "use": "@vercel/node"
+      "src": "src/main.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api/auth/(.*)",
-      "dest": "/src/auth/serverless.ts"
-    },
-    {
-      "src": "/api/validate-session",
-      "dest": "/src/auth/serverless.ts"
-    },
-    {
-      "src": "/health",
-      "dest": "/src/auth/serverless.ts"
+      "src": "/(.*)",
+      "dest": "src/main.py"
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "PYTHON_VERSION": "3.11"
   }
 }
+
