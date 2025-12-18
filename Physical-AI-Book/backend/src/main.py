@@ -46,7 +46,7 @@ app.middleware("http")(auth_middleware)
 # Include routers
 app.include_router(health.router, prefix="/v1", tags=["health"])
 app.include_router(chat.router, prefix="/v1", tags=["chat"])
-
+app.include_router(auth.router, prefix="/api", tags=["auth"])
 
 @app.get("/")
 async def root():
