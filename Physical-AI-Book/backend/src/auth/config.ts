@@ -1,5 +1,9 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import * as dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 // Create PostgreSQL connection pool
 const pool = new Pool({
