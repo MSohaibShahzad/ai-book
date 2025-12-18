@@ -76,11 +76,14 @@ const server = http.createServer(async (req, res) => {
   ];
 
   const origin = req.headers.origin || "";
-  if (allowedOrigins.includes(origin)) {
+  const isOriginAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app');
+
+  if (isOriginAllowed) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie, Set-Cookie");
+    res.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
   }
 
   // Handle preflight requests
