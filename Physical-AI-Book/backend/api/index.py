@@ -3,19 +3,14 @@ Vercel serverless entry point for FastAPI application.
 This file is required by Vercel to properly route requests to the FastAPI app.
 """
 import sys
-import os
+from pathlib import Path
 
-# Add the parent directory to the Python path for imports to work
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the parent directory to Python path
+backend_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(backend_dir))
 
-try:
-    from src.main import app
-except ImportError as e:
-    print(f"Import error: {e}")
-    print(f"Python path: {sys.path}")
-    print(f"Current directory: {os.getcwd()}")
-    print(f"Directory contents: {os.listdir('.')}")
-    raise
+# Import the FastAPI app
+from src.main import app
 
-# Vercel expects the ASGI app to be named 'app' and exported from api/index.py
-# This file simply imports and re-exports the FastAPI app
+# Vercel expects the ASGI app to be named 'app'
+__all__ = ['app']
