@@ -12,15 +12,17 @@ const config = {
   tagline: 'A University Textbook on Modern Humanoid Robotics',
   favicon: 'img/favicon.ico',
 
-  customFields: {
-      apiUrl: process.env.API_URL || 'https://ai-book-ki61.vercel.app/v1',
-      authApiUrl: process.env.AUTH_API_URL || 'https://ai-book-ki61.vercel.app',
-    },
   // Set the production url of your site here
   url: 'https://ai-book-green.vercel.app/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+
+  customFields: {
+    // Backend API URL for both RAG chatbot and authentication
+    // Auth endpoints are proxied through the FastAPI backend at /api/auth/*
+    apiUrl: process.env.REACT_APP_API_URL || 'https://ai-book-ki61.vercel.app/v1',
+  },
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
