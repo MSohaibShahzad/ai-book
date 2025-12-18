@@ -29,7 +29,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Configure CORS - allow all Vercel deployments
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel deployments
+    allow_origin_regex=r"(https://.*\.vercel\.app|http://localhost:\d+)",  # Allow all Vercel deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
