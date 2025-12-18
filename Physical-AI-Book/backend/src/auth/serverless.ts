@@ -20,6 +20,18 @@ const allowedOrigins = [
 ];
 
 /**
+ * Check if origin is allowed (supports wildcards for Vercel preview deployments)
+ */
+function isOriginAllowed(origin: string): boolean {
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allow Vercel preview deployments (*.vercel.app)
+  if (origin.endsWith('.vercel.app')) return true;
+
+  return false;
+}
+
+/**
  * Set CORS headers
  */
 function setCorsHeaders(req: VercelRequest, res: VercelResponse) {
