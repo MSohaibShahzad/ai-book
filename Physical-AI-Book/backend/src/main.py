@@ -7,7 +7,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import settings
-from src.api.routes import health, chat
+from src.api.routes import health, chat, auth
 from src.middleware.rate_limit import limiter
 from src.middleware.logging import RequestLoggingMiddleware
 from src.logging_config import setup_logging
