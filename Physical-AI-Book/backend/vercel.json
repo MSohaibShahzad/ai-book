@@ -1,20 +1,15 @@
 {
   "version": 2,
-  "name": "ai-book-fastapi-backend",
   "builds": [
     {
-      "src": "src/main.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/main.py"
+      "dest": "api/index.py"
     }
-  ],
-  "env": {
-    "PYTHON_VERSION": "3.11"
-  }
+  ]
 }
-
