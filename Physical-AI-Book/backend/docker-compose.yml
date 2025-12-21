@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Authentication Service (Node.js + Better Auth)
+  auth-service:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: ai-book-auth
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=http://auth-service:3001
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVER_PORT=3001
+      - AUTH_SERVER_HOST=0.0.0.0
+      - NODE_ENV=production
+    networks:
+      - ai-book-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # API Service (Python + FastAPI + RAG)
+  api-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: ai-book-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Qdrant Cloud
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_COLLECTION_NAME=textbook_chunks
+
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+
+      # OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBEDDING_MODEL=text-embedding-3-small
+      - LLM_MODEL=gpt-4o-mini
+
+      # JWT Verification
+      - JWT_SECRET=${JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+
+      # Application
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - RATE_LIMIT_PER_MINUTE=10
+
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    networks:
+      - ai-book-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  ai-book-network:
+    driver: bridge

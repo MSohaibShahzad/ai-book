@@ -1,0 +1,144 @@
+/**
+ * Styles for TranslationButton component.
+ * Feature: 004-urdu-translation
+ */
+
+.translationControls {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.translateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.translateButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.translateButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.translateButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error message */
+.errorMessage {
+  padding: 0.75rem 1rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* Auth hint */
+.authHint {
+  margin: 0;
+  padding: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Dark mode support */
+[data-theme='dark'] .errorMessage {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+  border-left-color: #ef4444;
+}
+
+[data-theme='dark'] .authHint {
+  color: #9ca3af;
+}
+
+/* Toggle button (for switching between languages) */
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ifm-color-primary);
+  background: transparent;
+  border: 2px solid var(--ifm-color-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: var(--ifm-color-primary);
+  color: white;
+  transform: translateX(-2px);
+}
+
+.toggleButton:active {
+  transform: translateX(0);
+}
+
+/* Urdu content area */
+.urduContent {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-left: 4px solid var(--ifm-color-primary);
+  background: var(--ifm-background-surface-color);
+  border-radius: 4px;
+}
+
+/* Translation wrapper */
+.translationWrapper {
+  margin: 2rem 0;
+}
+
+/* Original content */
+.originalContent {
+  /* Default styling */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .translateButton,
+  .toggleButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

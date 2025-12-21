@@ -60,7 +60,24 @@ class RAGPipeline:
         else:
             logger.info("No highlighted text in request")
 
-        # Use agent to generate response (agent handles retrieval internally)
+        # Step 1: Generate embedding for query
+        query_embedding = self.embeddings.generate_embedding(final_query)
+
+        # Step 2: Search Qdrant for similar vectors
+        search_results = self.qdrant.search(
+            query_vector=query_embedding,
+            limit=self.max_chunks,
+            score_threshold=self.SIMILARITY_THRESHOLD
+        )
+
+        # Step 3: Retrieve metadata from Postgres if we have results
+        enriched_chunks = []
+        if search_results:
+            vector_ids = [UUID(str(result.id)) for result in search_results]
+            chunks_metadata = await self.postgres.get_chunks_by_vector_ids(vector_ids)
+            enriched_chunks = self._merge_results(search_results, chunks_metadata)
+
+        # Step 4: Use agent to generate response (agent will also call retrieval, but we have sources)
         try:
             response = await self.agent.generate_response(
                 query=final_query,
@@ -70,10 +87,8 @@ class RAGPipeline:
         except Exception as e:
             raise Exception(f"Agent execution failed: {str(e)}")
 
-        # Since agent handles retrieval internally, we need to extract sources
-        # For now, return empty sources (agent manages context internally)
-        # In production, you could enhance the agent to return sources
-        source_references = []
+        # Step 5: Extract sources from our retrieval
+        source_references = self._extract_sources(enriched_chunks) if enriched_chunks else []
 
         # Calculate processing time
         processing_time = int((time.time() - start_time) * 1000)

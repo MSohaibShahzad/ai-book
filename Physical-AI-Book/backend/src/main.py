@@ -1,5 +1,13 @@
 """
 FastAPI application entry point for RAG Chatbot backend.
+
+This service handles ONLY:
+- RAG chatbot logic
+- Vector database queries
+- LLM generation
+
+Authentication is handled by a separate auth-service (Node.js + Better Auth).
+This service only verifies JWT tokens.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,9 +15,10 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from src.config import settings
-from src.api.routes import health, chat
+from src.api.routes import health, chat, translation
 from src.middleware.rate_limit import limiter
 from src.middleware.logging import RequestLoggingMiddleware
+from src.middleware.jwt_auth import JWTAuthMiddleware
 from src.logging_config import setup_logging
 
 # Initialize logging
@@ -26,25 +35,26 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Configure CORS
+# Configure CORS - allow localhost and all Vercel deployments
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.get_cors_origins(),
+    allow_origin_regex=r"(https://.*\.vercel\.app|http://localhost:\d+)",  # Allow all Vercel deployments and localhost
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Add request logging
 app.add_middleware(RequestLoggingMiddleware)
 
-# Add authentication middleware
-from src.middleware.auth_middleware import auth_middleware
-app.middleware("http")(auth_middleware)
+# Add JWT authentication middleware (verifies tokens issued by auth-service)
+app.add_middleware(JWTAuthMiddleware)
 
 # Include routers
 app.include_router(health.router, prefix="/v1", tags=["health"])
 app.include_router(chat.router, prefix="/v1", tags=["chat"])
+app.include_router(translation.router, prefix="/v1", tags=["translation"])
 
 
 @app.get("/")

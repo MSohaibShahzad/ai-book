@@ -11,7 +11,7 @@ from src.api.models.request import ChatRequest
 from src.middleware.rate_limit import limiter
 from src.api.models.response import ChatResponse, SourceReference
 from src.services.rag_pipeline import rag_pipeline
-from src.middleware.auth_middleware import get_current_user, get_user_context_for_llm
+from src.middleware.jwt_auth import get_current_user, get_user_context_for_llm
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

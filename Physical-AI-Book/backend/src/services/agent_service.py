@@ -4,7 +4,7 @@ Replaces the direct LLM service with an agent-based approach.
 """
 from typing import List, Dict, Optional, Annotated
 from pydantic import BaseModel, Field
-from agents import Agent, Runner, function_tool, RunContextWrapper
+from agents import Agent, Runner, function_tool, RunContextWrapper, ModelSettings
 from uuid import UUID
 
 from src.services.embeddings import embedding_service
@@ -90,6 +90,7 @@ class RAGAgentService:
             instructions=self._get_system_instructions(),
             model=settings.llm_model,
             tools=[retrieve_textbook_context],
+            model_settings=ModelSettings(tool_choice="retrieve_textbook_context"),
         )
 
     def _get_system_instructions(self) -> str:

@@ -10,13 +10,20 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'Physical-AI & Humanoid Robotics',
   tagline: 'A University Textbook on Modern Humanoid Robotics',
-  favicon: 'static/favicon.ico',
+  favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
   url: 'https://ai-book-green.vercel.app/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+
+  
+  customFields: {
+    // Backend API URL for both RAG chatbot and authentication
+    // Auth endpoints are proxied through the FastAPI backend at /api/auth/*
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:8000/v1',
+  },
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -44,7 +51,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/MSohaibShahzad/ai-book/Physical-AI-Book/tree/main/textbook',
+            'https://github.com/MSohaibShahzad/ai-book/tree/main/Physical-AI-Book/textbook',
         },
         blog: false,
         theme: {
@@ -154,6 +161,20 @@ const config = {
         additionalLanguages: ['python', 'yaml', 'bash'],
       },
     }),
+
+  // Stylesheets for Urdu font support (Feature 004) and math rendering
+  stylesheets: [
+    {
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap',
+      type: 'text/css',
+    },
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+      type: 'text/css',
+      integrity: 'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV',
+      crossorigin: 'anonymous',
+    },
+  ],
 };
 
 export default config;

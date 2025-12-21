@@ -1,12 +1,16 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import * as dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 // Create PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-// Better-Auth configuration with custom user fields
+// Better-Auth configuration with JWT support
 export const auth = betterAuth({
   database: pool,
   emailAndPassword: {
@@ -18,6 +22,10 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days in seconds
     updateAge: 60 * 60 * 24, // Update session every 24 hours
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5 minutes
+    },
   },
   user: {
     additionalFields: {
@@ -42,5 +50,15 @@ export const auth = betterAuth({
     },
   },
   secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
+  trustedOrigins: [
+    "http://localhost:3000", // Docusaurus dev server
+    "http://localhost:8000", // FastAPI backend
+    "https://ai-book-green.vercel.app", // Production frontend
+    "https://ai-book-ki61.vercel.app", // Production frontend (alternate)
+  ],
 });
+
+// Export types for use in other modules
+export type AuthUser = typeof auth.$Infer.Session.user;
+export type AuthSession = typeof auth.$Infer.Session.session;

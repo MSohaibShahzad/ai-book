@@ -1586,3 +1586,102 @@ button[class*='backToTopButton']:hover {
     min-height: 60px;
   }
 }
+
+/* ============================================================================
+   Urdu Translation Styles (Feature 004)
+   ============================================================================ */
+
+/* Urdu content container with RTL support */
+.urdu-content {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8; /* Nastaliq script needs more line spacing */
+  margin: 2rem 0;
+}
+
+/* Preserve LTR for code blocks and formulas within RTL content */
+.urdu-content pre,
+.urdu-content code {
+  direction: ltr;
+  text-align: left;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+/* Preserve LTR for math/LaTeX */
+.urdu-content .math {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Toggle button styling */
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ifm-color-primary);
+  background: transparent;
+  border: 2px solid var(--ifm-color-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: var(--ifm-color-primary);
+  color: white;
+}
+
+/* Translation wrapper */
+.translationWrapper {
+  margin: 2rem 0;
+}
+
+/* Original content container */
+.originalContent {
+  /* Inherits default LTR styling */
+}
+
+/* Urdu headings */
+.urdu-content h1,
+.urdu-content h2,
+.urdu-content h3,
+.urdu-content h4,
+.urdu-content h5,
+.urdu-content h6 {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Urdu lists */
+.urdu-content ul,
+.urdu-content ol {
+  direction: rtl;
+  text-align: right;
+  padding-right: 2rem;
+  padding-left: 0;
+}
+
+/* Urdu tables */
+.urdu-content table {
+  direction: rtl;
+}
+
+/* Dark mode adjustments for Urdu content */
+[data-theme='dark'] .urdu-content {
+  color: var(--ifm-font-color-base);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .urdu-content {
+    line-height: 2; /* Even more spacing on mobile */
+    font-size: 1.05rem; /* Slightly larger on mobile */
+  }
+}
+

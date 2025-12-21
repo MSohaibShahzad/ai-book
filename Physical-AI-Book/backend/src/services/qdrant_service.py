@@ -116,13 +116,15 @@ class QdrantService:
         """
         search_params = {
             "collection_name": self.collection_name,
-            "query_vector": query_vector,
+            "query": query_vector,
             "limit": limit,
         }
         if score_threshold is not None:
             search_params["score_threshold"] = score_threshold
 
-        return self.client.search(**search_params)
+        # Use query_points for newer Qdrant client versions
+        result = self.client.query_points(**search_params)
+        return result.points
 
     def get_collection_info(self) -> dict:
         """Get collection statistics."""

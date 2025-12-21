@@ -1,25 +1,30 @@
 """
-Authentication middleware for FastAPI to integrate with Better-Auth server.
+JWT Authentication Middleware for FastAPI
 
-This middleware validates user sessions by communicating with the Node.js Better-Auth server
-and attaches user information to the request state for use in route handlers.
+This middleware verifies JWT tokens issued by the auth-service.
+It does NOT handle authentication - only token verification.
 """
 import logging
-import httpx
+import jwt
 from typing import Optional, Dict, Any
-from fastapi import Request, HTTPException
+from fastapi import Request
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 
-AUTH_SERVER_URL = "http://localhost:3001"
+# Import settings to get JWT_SECRET
+from ..config import settings
+
+JWT_SECRET = settings.jwt_secret or settings.better_auth_secret
+JWT_ALGORITHM = "HS256"
 
 
 class AuthUser:
-    """User data from Better-Auth session"""
+    """User data extracted from JWT token"""
 
     def __init__(self, data: Dict[str, Any]):
-        self.id: str = data.get("id", "")
+        self.id: str = data.get("userId", "")
         self.name: str = data.get("name", "")
         self.email: str = data.get("email", "")
         self.email_verified: bool = data.get("emailVerified", False)
@@ -39,122 +44,110 @@ class AuthUser:
         }
 
 
-async def get_session_from_auth_server(cookie_header: str) -> Optional[AuthUser]:
+def verify_jwt_token(token: str) -> Optional[AuthUser]:
     """
-    Validate session with Better-Auth server and return user data.
+    Verify JWT token and extract user data.
 
     Args:
-        cookie_header: Cookie header string from the request
+        token: JWT token string (without "Bearer " prefix)
 
     Returns:
-        AuthUser object if session is valid, None otherwise
+        AuthUser object if valid, None otherwise
     """
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{AUTH_SERVER_URL}/api/validate-session",
-                headers={"Cookie": cookie_header},
-                timeout=5.0,
-            )
+        logger.debug(f"[JWT Verify] Using secret: {JWT_SECRET[:10]}...")
+        logger.debug(f"[JWT Verify] Algorithm: {JWT_ALGORITHM}")
 
-            if response.status_code != 200:
-                logger.warning(f"Session validation failed: {response.status_code}")
-                return None
+        # Verify and decode JWT
+        payload = jwt.decode(
+            token,
+            JWT_SECRET,
+            algorithms=[JWT_ALGORITHM],
+            issuer="auth-service",
+            audience="api-service",
+        )
 
-            data = response.json()
+        logger.info(f"[JWT Verify] Token verified successfully. User: {payload.get('email')}")
+        return AuthUser(payload)
 
-            if not data.get("user"):
-                return None
-
-            return AuthUser(data["user"])
-
-    except httpx.RequestError as e:
-        logger.error(f"Error connecting to auth server: {e}")
+    except jwt.ExpiredSignatureError:
+        logger.warning("JWT token has expired")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid JWT token: {e}")
         return None
     except Exception as e:
-        logger.error(f"Unexpected error validating session: {e}")
+        logger.error(f"Unexpected error verifying JWT: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return None
 
 
-async def auth_middleware(request: Request, call_next):
+class JWTAuthMiddleware(BaseHTTPMiddleware):
     """
-    FastAPI middleware to validate user sessions.
+    Middleware to verify JWT tokens and attach user to request state.
 
-    Attaches user data to request.state.user if session is valid.
+    Extracts JWT from Authorization header (Bearer token) and verifies it.
+    Attaches user data to request.state.user if valid.
     """
-    # Get cookie header
-    cookie_header = request.headers.get("cookie", "")
 
-    # Validate session
-    user = None
-    if cookie_header:
-        user = await get_session_from_auth_server(cookie_header)
+    async def dispatch(self, request: Request, call_next):
+        # Extract Authorization header
+        auth_header = request.headers.get("authorization", "")
 
-    # Attach user to request state
-    request.state.user = user
+        logger.info(f"[JWT Middleware] Processing request to {request.url.path}")
+        logger.info(f"[JWT Middleware] Authorization header present: {bool(auth_header)}")
 
-    # Continue processing request
-    response = await call_next(request)
-    return response
+        user = None
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]  # Remove "Bearer " prefix
+            logger.info(f"[JWT Middleware] Token extracted: {token[:20]}...")
+            user = verify_jwt_token(token)
+            if user:
+                logger.info(f"[JWT Middleware] User authenticated: {user.email}")
+            else:
+                logger.warning("[JWT Middleware] Token verification failed")
+        else:
+            logger.warning(f"[JWT Middleware] No Bearer token found. Header: {auth_header[:50] if auth_header else 'empty'}")
+
+        # Attach user to request state
+        request.state.user = user
+
+        # Continue processing
+        response = await call_next(request)
+        return response
 
 
 def get_current_user(request: Request) -> Optional[AuthUser]:
     """
-    Helper function to get current authenticated user from request.
+    Helper to get authenticated user from request.
 
     Usage in route handlers:
     ```python
-    from src.middleware.auth_middleware import get_current_user
+    from src.middleware.jwt_auth import get_current_user
 
     @router.post("/chat")
     async def chat(request: Request):
         user = get_current_user(request)
         if user:
-            # User is authenticated
-            print(f"User {user.name} ({user.email})")
-            print(f"Background: {user.software_background}, {user.hardware_background}")
+            print(f"User: {user.name} ({user.email})")
         else:
-            # User is not authenticated
+            # Anonymous user
             pass
     ```
     """
     return getattr(request.state, "user", None)
 
 
-def require_auth(request: Request) -> AuthUser:
-    """
-    Dependency for routes that require authentication.
-
-    Usage:
-    ```python
-    from fastapi import Depends
-    from src.middleware.auth_middleware import require_auth, AuthUser
-
-    @router.post("/protected")
-    async def protected_route(user: AuthUser = Depends(require_auth)):
-        return {"message": f"Hello {user.name}"}
-    ```
-
-    Raises:
-        HTTPException: 401 Unauthorized if user is not authenticated
-    """
-    user = get_current_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    return user
-
-
 def get_user_context_for_llm(user: Optional[AuthUser]) -> str:
     """
-    Generate context string for LLM based on user's background.
-
-    This context is prepended to the chatbot system prompt to personalize responses.
+    Generate LLM context string based on user's background.
 
     Args:
         user: Authenticated user or None
 
     Returns:
-        Context string for LLM prompt
+        Context string to prepend to system prompt
     """
     if not user:
         return "The user is not logged in. Provide general responses suitable for all levels."
@@ -166,7 +159,7 @@ def get_user_context_for_llm(user: Optional[AuthUser]) -> str:
         f"Primary interest area: {user.interest_area}.",
     ]
 
-    # Add personalization hints based on background
+    # Personalization hints
     if user.software_background == "Beginner":
         context_parts.append(
             "Explain code concepts clearly with examples. Avoid assuming prior knowledge."
