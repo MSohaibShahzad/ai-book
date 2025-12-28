@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <title>Capstone Integration Flow: All 4 Modules</title>
+  <desc>Complete system architecture showing integration of ROS 2, Digital Twin, Isaac ROS, and VLA for autonomous humanoid navigation</desc>
+
+  <!-- Title -->
+  <text x="450" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#000000">
+    Capstone Integration: Voice-Controlled Humanoid Autonomy
+  </text>
+
+  <!-- Module 1: ROS 2 Foundation -->
+  <rect x="50" y="70" width="200" height="120" rx="10" fill="#E8E8FF" stroke="#000000" stroke-width="2"/>
+  <text x="150" y="95" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">Module 1: ROS 2</text>
+  <text x="150" y="115" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Nodes, Topics, Services</text>
+  <text x="150" y="130" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Action Servers</text>
+  <text x="150" y="145" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• TF Transforms</text>
+  <text x="150" y="160" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• URDF Robot Model</text>
+  <text x="150" y="175" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Launch Files</text>
+
+  <!-- Module 2: Digital Twin -->
+  <rect x="300" y="70" width="200" height="120" rx="10" fill="#FFE8E8" stroke="#000000" stroke-width="2"/>
+  <text x="400" y="95" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">Module 2: Digital Twin</text>
+  <text x="400" y="115" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Isaac Sim Warehouse</text>
+  <text x="400" y="130" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Physics Simulation</text>
+  <text x="400" y="145" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Sensor Simulation</text>
+  <text x="400" y="160" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Safe Testing</text>
+  <text x="400" y="175" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Scenario Generation</text>
+
+  <!-- Module 3: Isaac ROS -->
+  <rect x="550" y="70" width="200" height="120" rx="10" fill="#E8FFE8" stroke="#000000" stroke-width="2"/>
+  <text x="650" y="95" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">Module 3: Isaac ROS</text>
+  <text x="650" y="115" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• vSLAM Localization</text>
+  <text x="650" y="130" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• YOLOv8 Detection</text>
+  <text x="650" y="145" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Stereo Depth</text>
+  <text x="650" y="160" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• GPU Acceleration</text>
+  <text x="650" y="175" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• 60 FPS on Jetson</text>
+
+  <!-- Module 4: VLA -->
+  <rect x="300" y="230" width="300" height="120" rx="10" fill="#FFFFE8" stroke="#000000" stroke-width="2"/>
+  <text x="450" y="255" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">Module 4: Vision-Language-Action</text>
+  <text x="450" y="275" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Whisper Speech Recognition (0.7s)</text>
+  <text x="450" y="290" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• LLM Cognitive Planning (GPT-4/Llama)</text>
+  <text x="450" y="305" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Action Executor (ROS 2)</text>
+  <text x="450" y="320" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Task Decomposition</text>
+  <text x="450" y="335" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#333333">• Voice → Autonomous Execution</text>
+
+  <!-- Integration arrows -->
+  <path d="M 150 190 L 150 230 L 300 230" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="225" y="225" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666666">Action servers</text>
+
+  <path d="M 400 190 L 400 230" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="420" y="215" font-family="Arial, sans-serif" font-size="9" text-anchor="start" fill="#666666">Simulation env</text>
+
+  <path d="M 650 190 L 650 230 L 600 230" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="625" y="215" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666666">Perception</text>
+
+  <!-- Execution Layer -->
+  <rect x="50" y="390" width="800" height="100" rx="10" fill="#F0F0F0" stroke="#000000" stroke-width="2"/>
+  <text x="450" y="410" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#000000">Execution Layer (Integrated System)</text>
+
+  <!-- Execution components -->
+  <rect x="70" y="425" width="140" height="50" rx="5" fill="#D0E8FF" stroke="#666666" stroke-width="1"/>
+  <text x="140" y="445" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000000">Nav2 Stack</text>
+  <text x="140" y="460" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Footstep planning</text>
+  <text x="140" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Costmaps</text>
+
+  <rect x="230" y="425" width="140" height="50" rx="5" fill="#FFE8D0" stroke="#666666" stroke-width="1"/>
+  <text x="300" y="445" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000000">MoveIt 2</text>
+  <text x="300" y="460" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Arm manipulation</text>
+  <text x="300" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Grasp planning</text>
+
+  <rect x="390" y="425" width="140" height="50" rx="5" fill="#E8FFD0" stroke="#666666" stroke-width="1"/>
+  <text x="460" y="445" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000000">Isaac ROS GEMs</text>
+  <text x="460" y="460" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">vSLAM + Detection</text>
+  <text x="460" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">60 FPS perception</text>
+
+  <rect x="550" y="425" width="140" height="50" rx="5" fill="#FFD0E8" stroke="#666666" stroke-width="1"/>
+  <text x="620" y="445" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000000">Whole-Body</text>
+  <text x="620" y="460" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">ZMP control</text>
+  <text x="620" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Balance</text>
+
+  <rect x="710" y="425" width="120" height="50" rx="5" fill="#E8E8E8" stroke="#666666" stroke-width="1"/>
+  <text x="770" y="445" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#000000">Low-Level</text>
+  <text x="770" y="460" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">Motor control</text>
+  <text x="770" y="470" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333333">30 DOF</text>
+
+  <!-- Arrows from VLA to execution -->
+  <path d="M 350 350 L 140 390" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 400 350 L 300 390" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 450 350 L 460 390" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 500 350 L 620 390" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 550 350 L 770 390" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Example scenario -->
+  <rect x="50" y="510" width="800" height="75" rx="8" fill="#FFFACD" stroke="#666666" stroke-width="1"/>
+  <text x="450" y="530" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#000000">Example: "Go to Shelf A2 and bring me the red box"</text>
+  <text x="70" y="550" font-family="Arial, sans-serif" font-size="10" text-anchor="start" fill="#333333">1. Whisper: "Go to Shelf A2..." → Text (0.7s)</text>
+  <text x="70" y="565" font-family="Arial, sans-serif" font-size="10" text-anchor="start" fill="#333333">2. LLM: Decompose → [navigate_to("A2"), detect_object("red box"), grasp(), navigate_to("user"), handoff()] (1.2s)</text>
+  <text x="70" y="580" font-family="Arial, sans-serif" font-size="10" text-anchor="start" fill="#333333">3. Execution: vSLAM localization → Nav2 footstep planning → YOLOv8 detection → MoveIt grasp → return (24.1s)</text>
+
+  <!-- Performance metrics -->
+  <text x="450" y="520" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#CC0000">Total: 27.3s | Success: 90% (18/20 tests) | Power: 30W (Jetson Orin)</text>
+
+  <!-- Arrow marker definitions -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#000000"/>
+    </marker>
+  </defs>
+</svg>

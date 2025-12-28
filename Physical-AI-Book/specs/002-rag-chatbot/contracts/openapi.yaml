@@ -1,0 +1,388 @@
+openapi: 3.1.0
+info:
+  title: RAG Chatbot API for Physical-AI Textbook
+  version: 1.0.0
+  description: |
+    REST API for the RAG (Retrieval-Augmented Generation) chatbot that answers student questions about the Physical-AI & Humanoid Robotics textbook.
+
+    **Features**:
+    - Answer questions using textbook content retrieval
+    - Support for highlighted text as primary context
+    - Multi-turn conversation with session management
+    - Source attribution (module/chapter names)
+
+    **Constitution Compliance**:
+    - Content grounding (Principle VII): Answers based on retrieved passages only
+    - Simple references (Principle VIII): "Source: Module X, Chapter Y" format
+    - Safety (Principle IX): Refuses harmful queries, redirects to Ethics & Safety
+    - Session-only history (Principle XIII): No persistent storage
+  contact:
+    name: Physical-AI Textbook Team
+    url: https://physical-ai-textbook.dev
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.physical-ai-chatbot.dev/v1
+    description: Production server
+  - url: http://localhost:8000/v1
+    description: Local development server
+
+tags:
+  - name: chat
+    description: Chat endpoints for question answering
+  - name: health
+    description: Health check and service status
+
+paths:
+  /chat:
+    post:
+      tags: [chat]
+      summary: Answer student question
+      description: |
+        Generates an answer to a student's question using RAG retrieval from textbook content.
+
+        **Behavior**:
+        - If `highlighted_text` provided: Use as primary context, optionally retrieve 2-3 additional chunks
+        - Otherwise: Retrieve top 3-5 relevant chunks via semantic search
+        - LLM generates answer with source references
+        - Refuses harmful queries per constitution
+      operationId: answerQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              standard_question:
+                summary: Standard question (no highlighted text)
+                value:
+                  message: "What is inverse kinematics?"
+                  highlighted_text: null
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  conversation_history: []
+              highlighted_question:
+                summary: Question with highlighted text
+                value:
+                  message: "Explain this concept"
+                  highlighted_text: "Denavit-Hartenberg parameters provide a systematic way to describe robot kinematics..."
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  conversation_history: []
+              followup_question:
+                summary: Follow-up question with conversation history
+                value:
+                  message: "Can you show me an example?"
+                  highlighted_text: null
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  conversation_history:
+                    - role: "user"
+                      content: "What is forward kinematics?"
+                    - role: "assistant"
+                      content: "Forward kinematics is..."
+      responses:
+        '200':
+          description: Successful response with answer and sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                success:
+                  summary: Successful answer with sources
+                  value:
+                    response: |
+                      Inverse kinematics (IK) solves the problem of determining joint angles required to achieve a desired end-effector position and orientation. Unlike forward kinematics which computes position from angles, IK works backwards from desired position to required angles.
+
+                      **Key challenges**:
+                      - Multiple solutions may exist
+                      - No closed-form solution for some robot configurations
+                      - Computational complexity
+
+                      Source: Module 2: Robot Manipulation, Chapter 3: Inverse Kinematics
+                    sources:
+                      - module_name: "Robot Manipulation"
+                        chapter_name: "Chapter 3: Inverse Kinematics"
+                        slug: "/docs/robot-manipulation/inverse-kinematics"
+                        chunk_text_preview: "Inverse kinematics (IK) solves the problem of determining joint angles..."
+                      - module_name: "Robot Manipulation"
+                        chapter_name: "Chapter 2: Forward Kinematics"
+                        slug: "/docs/robot-manipulation/forward-kinematics"
+                        chunk_text_preview: "Forward kinematics computes end-effector position from joint angles..."
+                    session_id: "550e8400-e29b-41d4-a716-446655440000"
+                    retrieval_count: 3
+                    processing_time_ms: 847.3
+                not_covered:
+                  summary: Topic not covered in textbook
+                  value:
+                    response: "This topic is not covered in the textbook. Please check the table of contents or try rephrasing your question."
+                    sources: []
+                    session_id: "550e8400-e29b-41d4-a716-446655440000"
+                    retrieval_count: 0
+                    processing_time_ms: 234.1
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                empty_message:
+                  summary: Empty message
+                  value:
+                    error: "Validation error"
+                    detail: "message: Field required"
+                    status_code: 400
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rate_limit:
+                  summary: Too many requests
+                  value:
+                    error: "Rate limit exceeded"
+                    detail: "Maximum 10 requests per minute exceeded. Please try again later."
+                    status_code: 429
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                service_error:
+                  summary: Service unavailable
+                  value:
+                    error: "Internal server error"
+                    detail: "Unable to retrieve content. Please try again later."
+                    status_code: 500
+
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      description: |
+        Returns health status of the API and dependent services.
+
+        **Services checked**:
+        - Qdrant Cloud (vector database)
+        - Neon Postgres (metadata database)
+        - OpenAI API (embeddings + LLM)
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                all_healthy:
+                  summary: All services healthy
+                  value:
+                    status: "healthy"
+                    services:
+                      qdrant: true
+                      postgres: true
+                      openai: true
+                    version: "1.0.0"
+                    timestamp: "2025-12-10T23:59:59Z"
+        '503':
+          description: Service degraded or unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                degraded:
+                  summary: Some services unavailable
+                  value:
+                    status: "degraded"
+                    services:
+                      qdrant: true
+                      postgres: true
+                      openai: false
+                    version: "1.0.0"
+                    timestamp: "2025-12-10T23:59:59Z"
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Student's question or request
+          example: "What is inverse kinematics?"
+        highlighted_text:
+          type: string
+          nullable: true
+          maxLength: 5000
+          description: Optional highlighted text from textbook page
+          example: null
+        session_id:
+          type: string
+          format: uuid
+          description: Client-generated UUID for session tracking
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        conversation_history:
+          type: array
+          nullable: true
+          maxItems: 10
+          description: Recent conversation messages for context (max 10)
+          items:
+            $ref: '#/components/schemas/ConversationMessage'
+          example: []
+
+    ConversationMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Message sender
+          example: "user"
+        content:
+          type: string
+          description: Message content
+          example: "What is forward kinematics?"
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+        - sources
+        - session_id
+        - retrieval_count
+        - processing_time_ms
+      properties:
+        response:
+          type: string
+          description: Generated answer in Markdown format
+          example: "Inverse kinematics (IK) solves the problem of...\n\nSource: Module 2, Chapter 3"
+        sources:
+          type: array
+          minItems: 0
+          maxItems: 5
+          description: Source references for retrieved passages
+          items:
+            $ref: '#/components/schemas/SourceReference'
+        session_id:
+          type: string
+          format: uuid
+          description: Echo of request session_id
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        retrieval_count:
+          type: integer
+          minimum: 0
+          description: Number of chunks retrieved from RAG system
+          example: 3
+        processing_time_ms:
+          type: number
+          format: float
+          minimum: 0
+          description: Total processing time in milliseconds
+          example: 847.3
+
+    SourceReference:
+      type: object
+      required:
+        - module_name
+        - chapter_name
+        - slug
+        - chunk_text_preview
+      properties:
+        module_name:
+          type: string
+          description: Module title from textbook
+          example: "Robot Manipulation"
+        chapter_name:
+          type: string
+          description: Chapter title from textbook
+          example: "Chapter 3: Inverse Kinematics"
+        slug:
+          type: string
+          description: URL slug for deep linking
+          example: "/docs/robot-manipulation/inverse-kinematics"
+        chunk_text_preview:
+          type: string
+          maxLength: 200
+          description: First 200 characters of chunk text
+          example: "Inverse kinematics (IK) solves the problem of determining joint angles required to achieve a desired end-effector position and orientation..."
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - services
+        - version
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: Overall health status
+          example: "healthy"
+        services:
+          type: object
+          required:
+            - qdrant
+            - postgres
+            - openai
+          properties:
+            qdrant:
+              type: boolean
+              description: Qdrant Cloud availability
+              example: true
+            postgres:
+              type: boolean
+              description: Neon Postgres availability
+              example: true
+            openai:
+              type: boolean
+              description: OpenAI API availability
+              example: true
+        version:
+          type: string
+          description: API version
+          example: "1.0.0"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp (ISO 8601)
+          example: "2025-12-10T23:59:59Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status_code
+      properties:
+        error:
+          type: string
+          description: Error type or summary
+          example: "Validation error"
+        detail:
+          type: string
+          description: Detailed error message
+          example: "message: Field required"
+        status_code:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+  securitySchemes: {}
+
+security: []

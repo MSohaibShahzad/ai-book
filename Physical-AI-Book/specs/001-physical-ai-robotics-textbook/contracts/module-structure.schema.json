@@ -1,0 +1,216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://physical-ai-textbook.dev/schemas/module-structure.json",
+  "title": "Physical-AI Textbook Module Structure",
+  "description": "JSON Schema for validating YAML frontmatter in Physical-AI & Humanoid Robotics textbook markdown files",
+  "definitions": {
+    "moduleFrontmatter": {
+      "type": "object",
+      "required": ["title", "slug", "sidebar_label", "toc", "description"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Full module title",
+          "examples": ["Foundations: ROS 2 Middleware"]
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "URL-friendly identifier in kebab-case",
+          "examples": ["foundations-ros2"]
+        },
+        "sidebar_label": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Concise navigation label",
+          "examples": ["Module 1: ROS 2"]
+        },
+        "toc": {
+          "type": "boolean",
+          "const": true,
+          "description": "Enable table of contents (always true)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 200,
+          "description": "1-2 sentence summary of module"
+        },
+        "learning_outcomes": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "^(Explain|Design|Compare|Analyze|Evaluate|Create|Understand|Apply|Diagram|Trace|Identify)",
+            "description": "Measurable learning objective starting with action verb"
+          },
+          "description": "3-5 measurable objectives for module"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": "Prior knowledge required (optional)"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": "Recommended reading (optional)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "chapterFrontmatter": {
+      "type": "object",
+      "required": ["title", "slug", "sidebar_label", "toc", "description"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Full chapter title",
+          "examples": ["What is ROS 2? The Robot Operating System Explained"]
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "URL-friendly identifier in kebab-case",
+          "examples": ["what-is-ros2"]
+        },
+        "sidebar_label": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Concise navigation label",
+          "examples": ["1.1 What is ROS 2?"]
+        },
+        "toc": {
+          "type": "boolean",
+          "const": true,
+          "description": "Enable table of contents (always true)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 200,
+          "description": "1-2 sentence summary of chapter"
+        },
+        "learning_objectives": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": "2-3 objectives for this chapter (optional)"
+        },
+        "diagrams": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+\\.svg$",
+            "description": "Referenced diagram filenames (must exist in docs/diagrams/)"
+          },
+          "description": "Diagrams used in this chapter (optional)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "prefaceFrontmatter": {
+      "type": "object",
+      "required": ["title", "slug", "sidebar_label", "toc", "description"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Preface section title",
+          "examples": ["How to Use This Book", "Ethics and Safety in Robotics"]
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "URL-friendly identifier in kebab-case"
+        },
+        "sidebar_label": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Concise navigation label"
+        },
+        "toc": {
+          "type": "boolean",
+          "const": true,
+          "description": "Enable table of contents (always true)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 200,
+          "description": "1-2 sentence summary"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author name (optional)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Textbook version (semantic versioning, optional)"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Publication date (YYYY-MM-DD, optional)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/moduleFrontmatter"
+    },
+    {
+      "$ref": "#/definitions/chapterFrontmatter"
+    },
+    {
+      "$ref": "#/definitions/prefaceFrontmatter"
+    }
+  ],
+  "examples": [
+    {
+      "title": "Foundations: ROS 2 Middleware",
+      "slug": "foundations-ros2",
+      "sidebar_label": "Module 1: ROS 2",
+      "toc": true,
+      "description": "Understanding the middleware backbone of humanoid robots through ROS 2 concepts: nodes, topics, services, and actions.",
+      "learning_outcomes": [
+        "Explain the purpose of ROS 2 as middleware for robot control systems",
+        "Diagram node communication flows for sensor data processing",
+        "Design a URDF model representing a humanoid robot's structure"
+      ],
+      "prerequisites": ["Basic programming knowledge (Python or C++)"],
+      "references": [
+        "ROS 2 Documentation: https://docs.ros.org/",
+        "Robot Operating System: The Complete Reference (Volume 6)"
+      ]
+    },
+    {
+      "title": "What is ROS 2? The Robot Operating System Explained",
+      "slug": "what-is-ros2",
+      "sidebar_label": "1.1 What is ROS 2?",
+      "toc": true,
+      "description": "Explore the purpose of ROS 2 as the middleware nervous system for humanoid robots, enabling communication between sensors, controllers, and actuators.",
+      "learning_objectives": [
+        "Define ROS 2 and its role in robotic systems",
+        "Explain the publish-subscribe communication pattern"
+      ],
+      "diagrams": ["ros2-node-communication.svg"]
+    }
+  ]
+}

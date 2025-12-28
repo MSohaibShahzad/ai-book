@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Translation API Test</title>
+</head>
+<body>
+    <h1>Translation API Test</h1>
+    <button onclick="testTranslation()">Test Translation API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testTranslation() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+
+            try {
+                const apiUrl = 'http://localhost:8000/v1';
+                console.log('API URL:', apiUrl);
+
+                const response = await fetch(`${apiUrl}/api/translate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        chapter_slug: 'preface/index',
+                        target_language: 'ur'
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                resultDiv.innerHTML = `
+                    <h2>Response:</h2>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <h2>Error:</h2>
+                    <pre>${error.message}</pre>
+                    <p>Check browser console for details</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,591 @@
+openapi: 3.1.0
+info:
+  title: Better-Auth Authentication API
+  version: 1.0.0
+  description: |
+    Authentication API for Physical-AI textbook using Better-Auth.
+    Provides email/password signup, signin, session management, and user profile operations.
+  contact:
+    name: Physical-AI Team
+  license:
+    name: CC BY-NC-SA 4.0
+
+servers:
+  - url: https://textbook.example.com/api/auth
+    description: Production server
+  - url: http://localhost:3000/api/auth
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: Signup, signin, and signout operations
+  - name: Profile
+    description: User profile management
+  - name: Session
+    description: Session validation and management
+
+paths:
+  /sign-up/email:
+    post:
+      tags:
+        - Authentication
+      summary: Sign up new user with email and password
+      description: |
+        Creates a new user account with email, password, and learning background metadata.
+        Automatically creates an authenticated session upon successful signup.
+      operationId: signUpEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+            examples:
+              beginner_user:
+                summary: Beginner user signup
+                value:
+                  name: John Doe
+                  email: john.doe@example.com
+                  password: SecurePass123!
+                  softwareBackground: Beginner
+                  hardwareBackground: None
+                  interestArea: AI
+              advanced_user:
+                summary: Advanced user signup
+                value:
+                  name: Jane Smith
+                  email: jane.smith@example.com
+                  password: ComplexPass456!
+                  softwareBackground: Advanced
+                  hardwareBackground: Hands-on
+                  interestArea: Humanoids
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          headers:
+            Set-Cookie:
+              description: Session cookie (httpOnly, secure)
+              schema:
+                type: string
+                example: better-auth.session_token=abc123; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sign-in/email:
+    post:
+      tags:
+        - Authentication
+      summary: Sign in existing user
+      description: |
+        Authenticates user with email and password credentials.
+        Returns user profile and creates new session.
+      operationId: signInEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninRequest'
+            examples:
+              with_remember_me:
+                summary: Sign in with remember me
+                value:
+                  email: john.doe@example.com
+                  password: SecurePass123!
+                  rememberMe: true
+              without_remember_me:
+                summary: Sign in without remember me
+                value:
+                  email: jane.smith@example.com
+                  password: ComplexPass456!
+                  rememberMe: false
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          headers:
+            Set-Cookie:
+              description: Session cookie
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sign-out:
+    post:
+      tags:
+        - Authentication
+      summary: Sign out current user
+      description: |
+        Invalidates the current user session and clears authentication cookies.
+      operationId: signOut
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Successfully signed out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /session:
+    get:
+      tags:
+        - Session
+      summary: Get current session
+      description: |
+        Retrieves the current authenticated user's session and profile information.
+        Used to check if user is authenticated and get their metadata.
+      operationId: getSession
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Session retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /user/profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      description: Retrieves authenticated user's profile including learning background
+      operationId: getUserProfile
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags:
+        - Profile
+      summary: Update user background
+      description: |
+        Updates user's learning background metadata (software, hardware, interest area).
+        Changes are immediately reflected in chatbot personalization.
+      operationId: updateUserProfile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+            examples:
+              update_software:
+                summary: Update software background
+                value:
+                  softwareBackground: Intermediate
+              update_all:
+                summary: Update all background fields
+                value:
+                  softwareBackground: Advanced
+                  hardwareBackground: Hands-on
+                  interestArea: Robotics
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+      description: HttpOnly session cookie set by Better-Auth
+
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - softwareBackground
+        - hardwareBackground
+        - interestArea
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: User's full name or display name
+          example: John Doe
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 255
+          description: User's email address (must be unique)
+          example: john.doe@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+          description: User's password (min 8 characters)
+          example: SecurePass123!
+        softwareBackground:
+          $ref: '#/components/schemas/SoftwareBackground'
+        hardwareBackground:
+          $ref: '#/components/schemas/HardwareBackground'
+        interestArea:
+          $ref: '#/components/schemas/InterestArea'
+        image:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional profile picture URL
+          example: https://example.com/avatar.jpg
+        callbackURL:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional redirect URL after signup
+          example: /dashboard
+
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: john.doe@example.com
+        password:
+          type: string
+          format: password
+          description: User's password
+          example: SecurePass123!
+        rememberMe:
+          type: boolean
+          default: true
+          description: If false, session expires when browser closes
+          example: true
+        callbackURL:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional redirect URL after signin
+          example: /dashboard
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        softwareBackground:
+          $ref: '#/components/schemas/SoftwareBackground'
+        hardwareBackground:
+          $ref: '#/components/schemas/HardwareBackground'
+        interestArea:
+          $ref: '#/components/schemas/InterestArea'
+
+    AuthResponse:
+      type: object
+      required:
+        - user
+        - session
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          $ref: '#/components/schemas/Session'
+
+    SessionResponse:
+      type: object
+      required:
+        - user
+        - session
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          $ref: '#/components/schemas/Session'
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - emailVerified
+        - createdAt
+        - updatedAt
+        - softwareBackground
+        - hardwareBackground
+        - interestArea
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          description: User's display name
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: john.doe@example.com
+        emailVerified:
+          type: boolean
+          description: Whether email has been verified
+          example: false
+        image:
+          type: string
+          format: uri
+          nullable: true
+          description: Profile picture URL
+          example: https://example.com/avatar.jpg
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2025-12-16T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last profile update timestamp
+          example: "2025-12-16T15:45:00Z"
+        softwareBackground:
+          $ref: '#/components/schemas/SoftwareBackground'
+        hardwareBackground:
+          $ref: '#/components/schemas/HardwareBackground'
+        interestArea:
+          $ref: '#/components/schemas/InterestArea'
+
+    Session:
+      type: object
+      required:
+        - id
+        - userId
+        - expiresAt
+        - token
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique session identifier
+          example: 660e8400-e29b-41d4-a716-446655440011
+        userId:
+          type: string
+          format: uuid
+          description: User ID this session belongs to
+          example: 550e8400-e29b-41d4-a716-446655440000
+        expiresAt:
+          type: string
+          format: date-time
+          description: Session expiration timestamp (7 days default)
+          example: "2025-12-23T10:30:00Z"
+        token:
+          type: string
+          description: Session token (not exposed, used in cookie)
+          example: session_abc123xyz
+        createdAt:
+          type: string
+          format: date-time
+          description: Session creation timestamp
+          example: "2025-12-16T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last session activity timestamp
+          example: "2025-12-16T15:45:00Z"
+        ipAddress:
+          type: string
+          format: ipv4
+          nullable: true
+          description: IP address of session creation
+          example: 192.168.1.100
+        userAgent:
+          type: string
+          nullable: true
+          description: Browser user agent
+          example: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+
+    SoftwareBackground:
+      type: string
+      enum:
+        - Beginner
+        - Intermediate
+        - Advanced
+      description: |
+        User's programming experience level:
+        - Beginner: New to programming or basic scripting
+        - Intermediate: Comfortable with programming concepts
+        - Advanced: Professional developer with framework experience
+      example: Intermediate
+
+    HardwareBackground:
+      type: string
+      enum:
+        - None
+        - Basic
+        - Hands-on
+      description: |
+        User's robotics hardware experience:
+        - None: No hardware experience
+        - Basic: Theoretical knowledge or hobbyist exposure
+        - Hands-on: Practical experience with robotics platforms
+      example: Basic
+
+    InterestArea:
+      type: string
+      enum:
+        - AI
+        - Robotics
+        - Simulation
+        - Humanoids
+      description: |
+        User's primary learning interest:
+        - AI: Machine learning, neural networks
+        - Robotics: Control systems, kinematics
+        - Simulation: Digital twins, physics engines
+        - Humanoids: Bipedal locomotion, anthropomorphic systems
+      example: AI
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code or type
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid email format
+        details:
+          type: object
+          nullable: true
+          description: Additional error context
+          example:
+            field: email
+            constraint: format
+
+  responses:
+    BadRequest:
+      description: Invalid request (validation error)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalid_email:
+              summary: Invalid email format
+              value:
+                error: VALIDATION_ERROR
+                message: Invalid email format
+                details:
+                  field: email
+            weak_password:
+              summary: Password too short
+              value:
+                error: VALIDATION_ERROR
+                message: Password must be at least 8 characters long
+                details:
+                  field: password
+                  minLength: 8
+
+    Unauthorized:
+      description: Authentication required or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalid_credentials:
+              summary: Invalid email/password
+              value:
+                error: INVALID_CREDENTIALS
+                message: Invalid email or password. Please try again.
+            session_expired:
+              summary: Session expired
+              value:
+                error: SESSION_EXPIRED
+                message: Your session has expired. Please sign in again.
+
+    Conflict:
+      description: Resource conflict (e.g., email already exists)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            email_exists:
+              summary: Email already registered
+              value:
+                error: EMAIL_EXISTS
+                message: This email is already registered. Please sign in instead.
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            server_error:
+              summary: Generic server error
+              value:
+                error: INTERNAL_ERROR
+                message: An unexpected error occurred. Please try again later.

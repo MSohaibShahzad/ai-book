@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cookie Checker</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    button { padding: 10px 20px; font-size: 16px; margin-bottom: 20px; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🍪 Check Your Cookies</h1>
+  <p>Use this page to see what cookies are set when you're signed in.</p>
+  <button onclick="checkCookies()">Check Cookies</button>
+  <pre id="output"></pre>
+
+  <script>
+    function checkCookies() {
+      const cookies = document.cookie.split('; ');
+      const output = document.getElementById('output');
+
+      output.textContent = 'All cookies:\n\n';
+
+      cookies.forEach(cookie => {
+        const [name, value] = cookie.split('=');
+        output.textContent += name + ' = ' + value.substring(0, 50) + '...\n';
+      });
+
+      // Check for Better-Auth
+      const betterAuthCookies = cookies.filter(c => c.includes('better-auth'));
+      if (betterAuthCookies.length > 0) {
+        output.textContent += '\n\nBetter-Auth cookies found:\n';
+        betterAuthCookies.forEach(c => {
+          output.textContent += '✅ ' + c.substring(0, 80) + '...\n';
+        });
+      } else {
+        output.textContent += '\n\n❌ No Better-Auth cookies found!\n';
+        output.textContent += 'Make sure you are signed in.';
+      }
+    }
+  </script>
+</body>
+</html>

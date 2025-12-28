@@ -1,0 +1,445 @@
+openapi: 3.0.3
+info:
+  title: Chapter Personalization API
+  description: |
+    API for AI-powered personalization of textbook chapters based on user background.
+    Enforces rate limiting (3 requests/day), 30-second timeout, and session-based caching.
+  version: 1.0.0
+  contact:
+    name: AI Book Team
+    email: support@example.com
+
+servers:
+  - url: https://ai-book-api.vercel.app/api
+    description: Production server
+  - url: http://localhost:8000/api
+    description: Local development server
+
+tags:
+  - name: Personalization
+    description: Chapter personalization endpoints
+  - name: Quota
+    description: Rate limit quota management
+  - name: Metrics
+    description: Observability and monitoring
+
+security:
+  - BearerAuth: []
+  - CookieAuth: []
+
+paths:
+  /personalize:
+    post:
+      tags:
+        - Personalization
+      summary: Generate personalized chapter content
+      description: |
+        Adapts chapter content to user's software/hardware background and interest area.
+        Enforces rate limiting (3 requests per user per day) and 30-second timeout.
+        Returns 200 with personalized markdown on success, 408 on timeout, 429 on rate limit exceeded.
+      operationId: personalizeChapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalizationRequest'
+            examples:
+              beginner_user:
+                summary: Beginner user personalizing ROS2 chapter
+                value:
+                  chapter_id: "01-foundations-ros2/02-nodes-topics"
+                  chapter_content: "# ROS2 Nodes and Topics\n\nNodes are..."
+                  user_profile:
+                    software_background: "Beginner"
+                    hardware_background: "None"
+                    interest_area: "AI"
+              advanced_user:
+                summary: Advanced user personalizing robotics chapter
+                value:
+                  chapter_id: "03-ai-robot-brain/04-isaac-ros"
+                  chapter_content: "# Isaac ROS Perception\n\nIsaac ROS provides..."
+                  user_profile:
+                    software_background: "Advanced"
+                    hardware_background: "Intermediate"
+                    interest_area: "Robotics"
+      responses:
+        '200':
+          description: Personalization successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalizationResponse'
+              examples:
+                success:
+                  summary: Successful personalization
+                  value:
+                    personalized_content: "# ROS2 Nodes and Topics\n\nImagine nodes as..."
+                    remaining_limit: 2
+                    generation_time_ms: 15342
+        '400':
+          description: Invalid request (missing required fields, invalid profile values)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                incomplete_profile:
+                  summary: User has incomplete profile
+                  value:
+                    error: "incomplete_profile"
+                    message: "Complete your profile to enable personalization"
+                    details:
+                      missing_fields: ["software_background", "hardware_background"]
+                    profile_url: "/profile/settings"
+                invalid_enum:
+                  summary: Invalid enum value in profile
+                  value:
+                    error: "validation_error"
+                    message: "Invalid value for software_background"
+                    details:
+                      field: "software_background"
+                      value: "Ninja"
+                      allowed: ["Beginner", "Intermediate", "Advanced", "Expert"]
+        '401':
+          description: Unauthorized (missing or invalid JWT/session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: User not authenticated
+                  value:
+                    error: "unauthorized"
+                    message: "Authentication required to personalize chapters"
+                    login_url: "/signin"
+        '408':
+          description: Request timeout (exceeded 30-second limit)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                timeout:
+                  summary: Generation timed out
+                  value:
+                    error: "timeout"
+                    message: "Personalization timed out after 30 seconds. Please try again."
+                    retry_allowed: true
+                    remaining_limit: 1
+        '429':
+          description: Rate limit exceeded (3 requests per day)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+              examples:
+                limit_exceeded:
+                  summary: Daily quota exhausted
+                  value:
+                    error: "rate_limit_exceeded"
+                    message: "Daily personalization limit exceeded. Try again after reset."
+                    remaining_limit: 0
+                    reset_at: "2025-12-24T10:30:00Z"
+                    retry_after_seconds: 43200
+        '500':
+          description: Internal server error (AI generation failed, database error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ai_error:
+                  summary: AI generation failed
+                  value:
+                    error: "generation_failed"
+                    message: "Unable to generate personalized content. Please try again."
+                    retry_allowed: true
+                    remaining_limit: 2
+
+  /personalization/quota:
+    get:
+      tags:
+        - Quota
+      summary: Get user's personalization quota status
+      description: |
+        Returns remaining personalization requests for authenticated user and reset timestamp.
+        Used to display limit information on profile page and chapter pages.
+      operationId: getPersonalizationQuota
+      responses:
+        '200':
+          description: Quota status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaStatus'
+              examples:
+                with_requests_remaining:
+                  summary: User has requests remaining
+                  value:
+                    remaining_requests: 2
+                    total_requests: 3
+                    reset_at: "2025-12-24T10:30:00Z"
+                    hours_until_reset: 18
+                limit_exhausted:
+                  summary: User has exhausted quota
+                  value:
+                    remaining_requests: 0
+                    total_requests: 3
+                    reset_at: "2025-12-24T10:30:00Z"
+                    hours_until_reset: 6
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /personalization/cache:
+    delete:
+      tags:
+        - Personalization
+      summary: Invalidate personalized content cache
+      description: |
+        Clears all cached personalized content for authenticated user.
+        Called automatically when user updates their profile (software_background, hardware_background, or interest_area).
+        Frontend should re-personalize chapters after cache invalidation.
+      operationId: invalidatePersonalizationCache
+      responses:
+        '204':
+          description: Cache invalidated successfully (no content returned)
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /metrics:
+    get:
+      tags:
+        - Metrics
+      summary: Get personalization metrics
+      description: |
+        Returns aggregated metrics for monitoring: total requests, success rate, average duration, timeout count.
+        Used by monitoring dashboards to verify 90% success rate requirement (SC-007).
+        No authentication required (public endpoint for monitoring systems).
+      operationId: getPersonalizationMetrics
+      security: []  # Public endpoint
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+              examples:
+                healthy_metrics:
+                  summary: System performing well
+                  value:
+                    total_requests: 1543
+                    successful_requests: 1421
+                    failed_requests: 122
+                    timeout_requests: 45
+                    avg_duration_ms: 18345
+                    success_rate_percent: 92.1
+                    last_updated: "2025-12-23T15:30:00Z"
+                degraded_metrics:
+                  summary: System below success rate threshold
+                  value:
+                    total_requests: 823
+                    successful_requests: 701
+                    failed_requests: 122
+                    timeout_requests: 89
+                    avg_duration_ms: 25678
+                    success_rate_percent: 85.2
+                    last_updated: "2025-12-23T15:30:00Z"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from Better-Auth (/api/auth/jwt endpoint)
+
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: better-auth-session
+      description: Session cookie from Better-Auth
+
+  schemas:
+    PersonalizationRequest:
+      type: object
+      required:
+        - chapter_id
+        - chapter_content
+        - user_profile
+      properties:
+        chapter_id:
+          type: string
+          description: Unique chapter identifier (format: {module-slug}/{chapter-slug})
+          example: "01-foundations-ros2/02-nodes-topics"
+          pattern: '^[a-z0-9-]+/[a-z0-9-]+$'
+        chapter_content:
+          type: string
+          description: Original chapter markdown content (with YAML frontmatter)
+          example: "---\ntitle: ROS2 Nodes and Topics\n---\n\n# ROS2 Nodes\n\nNodes are..."
+        user_profile:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      required:
+        - software_background
+        - hardware_background
+        - interest_area
+      properties:
+        software_background:
+          type: string
+          enum: [Beginner, Intermediate, Advanced, Expert]
+          description: User's programming experience level
+        hardware_background:
+          type: string
+          enum: [None, Beginner, Intermediate, Advanced]
+          description: User's robotics hardware experience
+        interest_area:
+          type: string
+          enum: [AI, Robotics, Computer Vision, Motion Control, General]
+          description: User's primary area of interest
+
+    PersonalizationResponse:
+      type: object
+      required:
+        - personalized_content
+        - remaining_limit
+        - generation_time_ms
+      properties:
+        personalized_content:
+          type: string
+          description: Personalized chapter markdown (preserves code blocks, formulas, frontmatter)
+          example: "---\ntitle: ROS2 Nodes and Topics\n---\n\n# ROS2 Nodes (Simplified)\n\nImagine nodes as..."
+        remaining_limit:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Number of remaining personalization requests for this user today
+          example: 2
+        generation_time_ms:
+          type: number
+          description: Time taken to generate personalization (milliseconds)
+          example: 15342.5
+
+    QuotaStatus:
+      type: object
+      required:
+        - remaining_requests
+        - total_requests
+        - reset_at
+      properties:
+        remaining_requests:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Number of remaining requests in current 24-hour window
+          example: 2
+        total_requests:
+          type: integer
+          description: Total allowed requests per day
+          example: 3
+        reset_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when quota resets
+          example: "2025-12-24T10:30:00Z"
+        hours_until_reset:
+          type: number
+          description: Hours until quota resets (for user-friendly display)
+          example: 18.5
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum: [unauthorized, validation_error, incomplete_profile, timeout, generation_failed, rate_limit_exceeded, internal_error]
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error context (optional)
+          additionalProperties: true
+        retry_allowed:
+          type: boolean
+          description: Whether the user can retry the request
+        remaining_limit:
+          type: integer
+          description: Remaining personalization requests (included in some errors)
+
+    RateLimitError:
+      type: object
+      required:
+        - error
+        - message
+        - remaining_limit
+        - reset_at
+        - retry_after_seconds
+      properties:
+        error:
+          type: string
+          enum: [rate_limit_exceeded]
+        message:
+          type: string
+          example: "Daily personalization limit exceeded. Try again after reset."
+        remaining_limit:
+          type: integer
+          enum: [0]
+          description: Always 0 when rate limit exceeded
+        reset_at:
+          type: string
+          format: date-time
+          description: When the quota resets
+        retry_after_seconds:
+          type: integer
+          description: Seconds until quota resets (for Retry-After header)
+
+    MetricsResponse:
+      type: object
+      required:
+        - total_requests
+        - successful_requests
+        - failed_requests
+        - timeout_requests
+        - avg_duration_ms
+        - success_rate_percent
+        - last_updated
+      properties:
+        total_requests:
+          type: integer
+          description: Total personalization requests processed
+        successful_requests:
+          type: integer
+          description: Number of successful personalizations
+        failed_requests:
+          type: integer
+          description: Number of failed requests (including timeouts)
+        timeout_requests:
+          type: integer
+          description: Number of requests that exceeded 30-second timeout
+        avg_duration_ms:
+          type: number
+          description: Average generation time in milliseconds
+        success_rate_percent:
+          type: number
+          description: Success rate as percentage (successful / total * 100)
+        last_updated:
+          type: string
+          format: date-time
+          description: When these metrics were last calculated
