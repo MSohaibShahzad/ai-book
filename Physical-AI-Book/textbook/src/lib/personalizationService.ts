@@ -23,7 +23,7 @@ const getApiBaseUrl = () => {
   }
 
   // In production, use deployed backend (update this with your production URL)
-  return 'https://your-backend-url.vercel.app/api';
+  return 'https://ai-book-production-6886.up.railway.app/api';
 };
 
 /**
