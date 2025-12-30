@@ -144,7 +144,7 @@ const config = {
               },
               {
                 label: '💼 LinkedIn',
-                href: 'https://linkedin.com/in/msohaibshahzad',
+                href: 'https://www.linkedin.com/in/sohaib-shahzad',
               },
               {
                 label: '🐦 Twitter',
