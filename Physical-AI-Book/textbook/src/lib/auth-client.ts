@@ -21,7 +21,7 @@ const getAuthApiUrl = () => {
   }
 
   // In production, use the Better-Auth microservice
-  return 'https://ai-book-production-6886.up.railway.app';
+  return 'https://book-auth-production.up.railway.app';
 };
 
 const AUTH_API_URL = getAuthApiUrl();
