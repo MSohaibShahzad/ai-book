@@ -87,7 +87,7 @@ const server = http.createServer(async (req, res) => {
       ];
 
   const origin = req.headers.origin || "";
-  const isOriginAllowed = allowedOrigins.includes(origin) || origin.endsWith('.vercel.app');
+  const isOriginAllowed = allowedOrigins.includes(origin);
 
   if (isOriginAllowed) {
     res.setHeader("Access-Control-Allow-Origin", origin);
