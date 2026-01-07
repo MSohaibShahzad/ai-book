@@ -27,6 +27,14 @@ export const auth = betterAuth({
       maxAge: 60 * 5, // 5 minutes
     },
   },
+  // Enable cross-domain cookies (Railway + Vercel)
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none", // Required for cross-domain
+      secure: true,     // Required with sameSite=none
+      partitioned: true // New browser standard for cross-domain cookies
+    }
+  },
   user: {
     additionalFields: {
       softwareBackground: {
