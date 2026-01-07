@@ -22,7 +22,7 @@ import * as dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-const PORT = process.env.AUTH_SERVER_PORT || 3001;
+const PORT = process.env.PORT || process.env.AUTH_SERVER_PORT || 3001;
 const HOST = process.env.AUTH_SERVER_HOST || "0.0.0.0";
 
 // Rate limiting storage (in-memory, use Redis for production)
