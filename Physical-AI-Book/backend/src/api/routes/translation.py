@@ -22,17 +22,24 @@ from ...models.translation import (
 )
 from ...services.translation_service import TranslationService
 from ...middleware.jwt_auth import get_current_user
+from pathlib import Path
 
 router = APIRouter(prefix="/api/translate", tags=["translation"])
 
 # Initialize translation service with correct path to textbook docs
-# In Docker: /app/textbook/docs
-# In local dev: ../textbook/docs (relative to backend/)
-textbook_path = os.getenv("TEXTBOOK_DOCS_PATH", "../textbook/docs")
-if not os.path.exists(textbook_path):
-    # Try Docker path
-    textbook_path = "/app/textbook/docs"
-translation_service = TranslationService(textbook_docs_path=textbook_path)
+# In Docker/Railway: /app/textbook/docs (synced via sync-textbook.sh)
+# In local dev without sync: ../textbook/docs
+
+# Try synced path first (Railway deployment)
+textbook_path = Path("textbook/docs")
+if not textbook_path.exists():
+    # Fallback to parent directory for local dev
+    textbook_path = Path("../textbook/docs")
+    if not textbook_path.exists():
+        # Docker absolute path
+        textbook_path = Path("/app/textbook/docs")
+
+translation_service = TranslationService(textbook_docs_path=str(textbook_path))
 
 
 @router.post(
