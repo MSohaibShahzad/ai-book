@@ -36,8 +36,10 @@ export const TranslationButtonEnhanced: React.FC<TranslationButtonEnhancedProps>
     setError(null);
 
     try {
-      const apiUrl = (window as any).docusaurus?.siteConfig?.customFields?.apiUrl ||
-                     'http://localhost:8000/v1';
+      // Use production URL, fallback to localhost only in development
+      const apiUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? 'http://localhost:8000/v1'
+        : 'https://ai-book-production-6886.up.railway.app/v1';
 
       console.log('[Translation] API URL:', apiUrl);
       console.log('[Translation] Chapter slug:', chapterSlug);
