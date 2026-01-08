@@ -1,0 +1,13 @@
+[build]
+# Build from parent directory to include textbook docs
+builder = "dockerfile"
+dockerfilePath = "backend/Dockerfile.api"
+# Set build context to parent directory
+buildContext = ".."
+
+[deploy]
+startCommand = "uvicorn src.main:app --host 0.0.0.0 --port 8000"
+healthcheckPath = "/v1/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
