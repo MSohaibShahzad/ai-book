@@ -1,9 +1,9 @@
 [build]
-# Build from parent directory to include textbook docs
+# Build from backend directory (textbook docs are synced into backend/textbook/)
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.api"
-# Set build context to parent directory
-buildContext = ".."
+# Build context is backend/ directory (Railway root)
+
 
 [deploy]
 startCommand = "uvicorn src.main:app --host 0.0.0.0 --port 8000"
