@@ -26,7 +26,13 @@ from ...middleware.jwt_auth import get_current_user
 router = APIRouter(prefix="/api/translate", tags=["translation"])
 
 # Initialize translation service with correct path to textbook docs
-translation_service = TranslationService(textbook_docs_path="../textbook/docs")
+# In Docker: /app/textbook/docs
+# In local dev: ../textbook/docs (relative to backend/)
+textbook_path = os.getenv("TEXTBOOK_DOCS_PATH", "../textbook/docs")
+if not os.path.exists(textbook_path):
+    # Try Docker path
+    textbook_path = "/app/textbook/docs"
+translation_service = TranslationService(textbook_docs_path=textbook_path)
 
 
 @router.post(
