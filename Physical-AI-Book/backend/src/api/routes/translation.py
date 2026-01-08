@@ -30,16 +30,30 @@ router = APIRouter(prefix="/api/translate", tags=["translation"])
 # In Docker/Railway: /app/textbook/docs (synced via sync-textbook.sh)
 # In local dev without sync: ../textbook/docs
 
-# Try synced path first (Railway deployment)
-textbook_path = Path("textbook/docs")
-if not textbook_path.exists():
-    # Fallback to parent directory for local dev
-    textbook_path = Path("../textbook/docs")
-    if not textbook_path.exists():
-        # Docker absolute path
-        textbook_path = Path("/app/textbook/docs")
+import logging
 
-translation_service = TranslationService(textbook_docs_path=str(textbook_path))
+logger = logging.getLogger(__name__)
+
+# Try multiple paths for textbook docs
+def get_textbook_path():
+    """Find textbook docs directory from multiple possible locations."""
+    possible_paths = [
+        Path("textbook/docs"),      # Railway deployment (synced)
+        Path("../textbook/docs"),    # Local dev
+        Path("/app/textbook/docs"),  # Docker absolute
+    ]
+
+    for path in possible_paths:
+        if path.exists():
+            logger.info(f"Found textbook docs at: {path.absolute()}")
+            return str(path)
+
+    # If none exist, use default and log warning
+    logger.warning("Textbook docs not found in any expected location. Using default: textbook/docs")
+    return "textbook/docs"
+
+textbook_path = get_textbook_path()
+translation_service = TranslationService(textbook_docs_path=textbook_path)
 
 
 @router.post(
