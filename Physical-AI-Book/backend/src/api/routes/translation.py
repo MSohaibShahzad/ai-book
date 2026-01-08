@@ -102,7 +102,7 @@ async def translate_chapter(
 
     try:
         # Translate chapter (checks cache internally)
-        result = await translation_service.translate_chapter(
+        result = await get_translation_service().translate_chapter(
             chapter_slug=request.chapter_slug,
             target_language=request.target_language
         )
@@ -213,7 +213,7 @@ async def invalidate_chapter_cache(
     #     )
 
     try:
-        invalidated_count = await translation_service.invalidate_chapter_cache(
+        invalidated_count = await get_translation_service().invalidate_chapter_cache(
             chapter_slug=chapter_slug,
             language=language
         )
@@ -251,7 +251,7 @@ async def get_translation_stats(
         JSON with cache statistics
     """
     try:
-        stats = await translation_service.get_translation_stats()
+        stats = await get_translation_service().get_translation_stats()
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=stats
