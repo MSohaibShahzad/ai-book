@@ -121,8 +121,10 @@ async function logToggleAction(
     // Import getJWTToken dynamically to avoid circular dependencies
     const { getJWTToken } = await import('../lib/auth-client');
 
-    const apiUrl = (window as any).docusaurus?.siteConfig?.customFields?.apiUrl ||
-                   'http://localhost:8000/v1';
+    // Use production URL, fallback to localhost only in development
+    const apiUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'http://localhost:8000/v1'
+      : 'https://ai-book-production-6886.up.railway.app/v1';
 
     // Get current chapter slug from URL
     const pathname = window.location.pathname;
