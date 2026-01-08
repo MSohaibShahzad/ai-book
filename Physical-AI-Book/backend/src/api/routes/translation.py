@@ -52,8 +52,16 @@ def get_textbook_path():
     logger.warning("Textbook docs not found in any expected location. Using default: textbook/docs")
     return "textbook/docs"
 
-textbook_path = get_textbook_path()
-translation_service = TranslationService(textbook_docs_path=textbook_path)
+# Initialize translation service lazily to avoid startup failures
+_translation_service = None
+
+def get_translation_service() -> TranslationService:
+    """Get or create translation service instance (lazy initialization)."""
+    global _translation_service
+    if _translation_service is None:
+        textbook_path = get_textbook_path()
+        _translation_service = TranslationService(textbook_docs_path=textbook_path)
+    return _translation_service
 
 
 @router.post(
