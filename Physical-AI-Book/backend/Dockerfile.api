@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src ./src
 COPY personalization ./personalization
 
-COPY textbook/docs ./textbook/docs
+COPY textbook ./textbook
 
 # Expose port
 EXPOSE 8000
