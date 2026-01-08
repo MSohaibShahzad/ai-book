@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="ROS 2 Node Communication Architecture showing three nodes communicating via topics, services, and actions">
+  <title>ROS 2 Node Communication Architecture</title>
+  <desc>System architecture diagram showing three ROS 2 nodes (Camera Node, Object Detector Node, and Arm Controller Node) communicating through topics (pub-sub), services (request-response), and actions (long-running tasks with feedback)</desc>
+
+  <!-- Styles -->
+  <defs>
+    <style>
+      .node-box { fill: #e0e0e0; stroke: #333; stroke-width: 2; }
+      .topic-arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .service-arrow { stroke: #333; stroke-width: 2; stroke-dasharray: 5,5; fill: none; marker-end: url(#arrowhead); }
+      .action-arrow { stroke: #333; stroke-width: 3; fill: none; marker-end: url(#arrowhead-thick); }
+      .text-label { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+      .text-small { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .text-title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #333; }
+      .legend-box { fill: #f5f5f5; stroke: #333; stroke-width: 1; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+    <marker id="arrowhead-thick" markerWidth="12" markerHeight="12" refX="10" refY="3" orient="auto">
+      <polygon points="0 0, 12 3, 0 6" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="text-title">ROS 2 Node Communication Architecture</text>
+
+  <!-- Node 1: Camera Node -->
+  <rect x="50" y="100" width="180" height="120" rx="5" class="node-box"/>
+  <text x="140" y="130" text-anchor="middle" class="text-label" font-weight="bold">Camera Node</text>
+  <text x="140" y="150" text-anchor="middle" class="text-small">camera_driver</text>
+  <text x="60" y="175" class="text-small">Publishes:</text>
+  <text x="70" y="195" class="text-small">• /camera/image</text>
+  <text x="70" y="210" class="text-small">• /camera/info</text>
+
+  <!-- Node 2: Object Detector Node -->
+  <rect x="310" y="100" width="180" height="150" rx="5" class="node-box"/>
+  <text x="400" y="130" text-anchor="middle" class="text-label" font-weight="bold">Object Detector</text>
+  <text x="400" y="150" text-anchor="middle" class="text-small">object_detector</text>
+  <text x="320" y="175" class="text-small">Subscribes:</text>
+  <text x="330" y="195" class="text-small">• /camera/image</text>
+  <text x="320" y="220" class="text-small">Publishes:</text>
+  <text x="330" y="240" class="text-small">• /detections</text>
+
+  <!-- Node 3: Arm Controller Node -->
+  <rect x="570" y="350" width="180" height="150" rx="5" class="node-box"/>
+  <text x="660" y="380" text-anchor="middle" class="text-label" font-weight="bold">Arm Controller</text>
+  <text x="660" y="400" text-anchor="middle" class="text-small">arm_controller</text>
+  <text x="580" y="425" class="text-small">Subscribes:</text>
+  <text x="590" y="445" class="text-small">• /detections</text>
+  <text x="580" y="470" class="text-small">Services:</text>
+  <text x="590" y="490" class="text-small">• /arm/emergency_stop</text>
+
+  <!-- Topic: /camera/image (Camera → Detector) -->
+  <path d="M 230 160 L 310 160" class="topic-arrow"/>
+  <text x="270" y="150" text-anchor="middle" class="text-small">/camera/image</text>
+  <text x="270" y="165" text-anchor="middle" class="text-small" font-style="italic">(Topic)</text>
+
+  <!-- Topic: /detections (Detector → Arm Controller) -->
+  <path d="M 440 250 L 440 300 L 620 300 L 620 350" class="topic-arrow"/>
+  <text x="530" y="290" text-anchor="middle" class="text-small">/detections (Topic)</text>
+
+  <!-- Service: /arm/emergency_stop (bidirectional) -->
+  <path d="M 400 200 L 400 280 L 660 280 L 660 350" class="service-arrow"/>
+  <text x="530" y="270" text-anchor="middle" class="text-small">/arm/emergency_stop</text>
+  <text x="530" y="285" text-anchor="middle" class="text-small" font-style="italic">(Service - Request/Response)</text>
+
+  <!-- Action: /arm/grasp_object -->
+  <rect x="50" y="350" width="180" height="120" rx="5" class="node-box"/>
+  <text x="140" y="380" text-anchor="middle" class="text-label" font-weight="bold">Motion Planner</text>
+  <text x="140" y="400" text-anchor="middle" class="text-small">motion_planner</text>
+  <text x="60" y="425" class="text-small">Action Client:</text>
+  <text x="70" y="445" class="text-small">• /arm/grasp_object</text>
+
+  <path d="M 230 410 L 300 410 Q 320 410 320 430 L 320 450 Q 320 470 340 470 L 570 470" class="action-arrow"/>
+  <text x="400" y="460" text-anchor="middle" class="text-small">/arm/grasp_object</text>
+  <text x="400" y="475" text-anchor="middle" class="text-small" font-style="italic">(Action - Goal/Feedback/Result)</text>
+
+  <!-- Legend -->
+  <rect x="50" y="520" width="700" height="70" rx="5" class="legend-box"/>
+  <text x="60" y="540" class="text-label" font-weight="bold">Legend:</text>
+
+  <!-- Topic legend -->
+  <line x1="70" y1="555" x2="120" y2="555" class="topic-arrow"/>
+  <text x="130" y="560" class="text-small">Topic (pub-sub, async streaming)</text>
+
+  <!-- Service legend -->
+  <line x1="350" y1="555" x2="400" y2="555" class="service-arrow"/>
+  <text x="410" y="560" class="text-small">Service (request-response, sync)</text>
+
+  <!-- Action legend -->
+  <line x1="70" y1="575" x2="120" y2="575" class="action-arrow"/>
+  <text x="130" y="580" class="text-small">Action (long-running task, feedback)</text>
+</svg>
