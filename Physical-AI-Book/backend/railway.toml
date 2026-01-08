@@ -1,7 +1,7 @@
 [build]
 # Build from parent directory to include textbook docs
 builder = "dockerfile"
-dockerfilePath = "backend/Dockerfile.api"
+dockerfilePath = "Dockerfile.api"
 # Set build context to parent directory
 buildContext = ".."
 
