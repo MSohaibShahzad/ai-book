@@ -55,6 +55,11 @@ def verify_jwt_token(token: str) -> Optional[AuthUser]:
         AuthUser object if valid, None otherwise
     """
     try:
+        # Skip verification if JWT_SECRET is not configured
+        if not JWT_SECRET:
+            logger.warning("JWT_SECRET not configured - authentication disabled")
+            return None
+
         logger.debug(f"[JWT Verify] Using secret: {JWT_SECRET[:10]}...")
         logger.debug(f"[JWT Verify] Algorithm: {JWT_ALGORITHM}")
 

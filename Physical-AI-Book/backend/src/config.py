@@ -35,8 +35,8 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 10
 
     # JWT Verification (tokens issued by auth-service)
-    jwt_secret: str
-    better_auth_secret: str  # Fallback if JWT_SECRET not set
+    jwt_secret: str = ""  # Optional - chat works without auth
+    better_auth_secret: str = ""  # Fallback if JWT_SECRET not set
     auth_service_url: str = "http://auth-service:3001"  # Docker internal URL
 
     # Retrieval Settings
